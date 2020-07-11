@@ -8,9 +8,9 @@
 
 // class of objects to put in knapsack
 typedef struct {
-  int weight;
-  int profit;
-  float cp_ratio;
+    int weight;
+    int profit;
+    float cp_ratio;
 } KnapsackObject;
 
 // constructor of KnapsackObject
@@ -21,9 +21,9 @@ typedef bool* KnapsackSolution;
 
 // class of problem dataset
 typedef struct {
-  int knapsack_capacity;
-  int object_quantity;
-  KnapsackObject** objects;
+    int knapsack_capacity;
+    int object_quantity;
+    KnapsackObject** objects;
 } KnapsackDataset;
 
 // constructor of KnapsackDataset
@@ -51,8 +51,8 @@ KnapsackSolution DFS(KnapsackDataset* data);
 // return all neighbor solutions of current solution
 // in an array, and log the quantity of neighbors in the third argument
 // cast return value and arguments to adapt interfaces
-void** FindNeighborSolutions(const void* data,             // KnapsackDataset* data
-                             const void* current_solution, // KnapsackSolution current_solution
+void** FindNeighborSolutions(const void* data,              // KnapsackDataset* data
+                             const void* current_solution,  // KnapsackSolution current_solution
                              int* neighbor_quantity);
 
-#endif // KNAPSACK_H_
+#endif  // KNAPSACK_H_

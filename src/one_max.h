@@ -18,8 +18,8 @@ OneMaxSolution OneMaxDFS(int bits);
 // return all neighbor solutions of current solution
 // in an array, and log the quantity of neighbors in the third argument
 // cast return value and arguments to adapt interfaces
-void** FindOneMaxNeighborSolutions(const void* data,             // data = solution length
-                                   const void* current_solution, // KnapsackSolution current_solution
+void** FindOneMaxNeighborSolutions(const void* data,              // data = solution length
+                                   const void* current_solution,  // KnapsackSolution current_solution
                                    int* neighbor_quantity);
 
-#endif // ONE_MAX_H_
+#endif  // ONE_MAX_H_

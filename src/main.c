@@ -1,46 +1,46 @@
-#include "knapsack.h"
-#include "heuristic.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "heuristic.h"
+#include "knapsack.h"
 
 #define MAX_INPUT 100
 #define RESTART_TIMES 1000
 
 int main(int argc, char* argv[]) {
-  // argv[1] should be filepath/name without extension
-  if(argc != 2) {
-    printf("Incorrect filepath/name.\n");
-    exit(EXIT_FAILURE);
-  }
-  // extract filepath/name and concatenate the extensions
-  const int FilepathLength = strlen(argv[1]) + 7; // 7 for "_x.txt\0"
-  char filename_c[FilepathLength];
-  char filename_w[FilepathLength];
-  char filename_p[FilepathLength];
-  strncpy(filename_c, argv[1], strlen(argv[1]) + 1);
-  strncpy(filename_w, argv[1], strlen(argv[1]) + 1);
-  strncpy(filename_p, argv[1], strlen(argv[1]) + 1);
-  strncat(filename_c, "_c.txt", 7);
-  strncat(filename_w, "_w.txt", 7);
-  strncat(filename_p, "_p.txt", 7);
-  // read files to construct knapsack objects
-  int knapsack_capacity, object_quantity = 0;
-  int object_weight[MAX_INPUT], object_profit[MAX_INPUT];
-  FILE *fptrc, *fptrw, *fptrp;
-  fptrc = fopen(filename_c, "r");
-  fptrw = fopen(filename_w, "r");
-  fptrp = fopen(filename_p, "r");
-  fscanf(fptrc, "%d", &knapsack_capacity);
-  while (!feof(fptrw)) {
-    fscanf(fptrw, "%d", &object_weight[object_quantity]);
-    fscanf(fptrp, "%d", &object_profit[object_quantity]);
-    object_quantity++;
-  }
-  KnapsackDataset* input = NewKnapsackDataset(knapsack_capacity, object_quantity,
-                           object_weight, object_profit);
-  /*
+    // argv[1] should be filepath/name without extension
+    if (argc != 2) {
+        printf("Incorrect filepath/name.\n");
+        exit(EXIT_FAILURE);
+    }
+    // extract filepath/name and concatenate the extensions
+    const int FilepathLength = strlen(argv[1]) + 7;  // 7 for "_x.txt\0"
+    char filename_c[FilepathLength];
+    char filename_w[FilepathLength];
+    char filename_p[FilepathLength];
+    strncpy(filename_c, argv[1], strlen(argv[1]) + 1);
+    strncpy(filename_w, argv[1], strlen(argv[1]) + 1);
+    strncpy(filename_p, argv[1], strlen(argv[1]) + 1);
+    strncat(filename_c, "_c.txt", 7);
+    strncat(filename_w, "_w.txt", 7);
+    strncat(filename_p, "_p.txt", 7);
+    // read files to construct knapsack objects
+    int knapsack_capacity, object_quantity = 0;
+    int object_weight[MAX_INPUT], object_profit[MAX_INPUT];
+    FILE *fptrc, *fptrw, *fptrp;
+    fptrc = fopen(filename_c, "r");
+    fptrw = fopen(filename_w, "r");
+    fptrp = fopen(filename_p, "r");
+    fscanf(fptrc, "%d", &knapsack_capacity);
+    while (!feof(fptrw)) {
+        fscanf(fptrw, "%d", &object_weight[object_quantity]);
+        fscanf(fptrp, "%d", &object_profit[object_quantity]);
+        object_quantity++;
+    }
+    KnapsackDataset* input = NewKnapsackDataset(knapsack_capacity, object_quantity,
+                                                object_weight, object_profit);
+    /*
   // search solutions with hill climbing
   KnapsackSolution init_solution = GreedyByCPRatio(input);
   KnapsackSolution init_solution_anti = AntiGreedyByCPRatio(input);
@@ -142,5 +142,5 @@ int main(int argc, char* argv[]) {
            random_restart_hill_climbing_solution[c]);
   }
   */
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
