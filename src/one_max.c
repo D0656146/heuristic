@@ -30,6 +30,21 @@ void* RandomOneMaxSolution(const void* data) {
     return solution;
 }
 
+void* FindRandomOneMaxNeighborSolution(const void* data, const void* current_solution) {
+    srand(time(NULL));
+    OneMaxSolution neighbor = malloc(sizeof(OneMaxSolution));
+    for (int c = 0; c < *((int*)data); c++) {
+        neighbor[c] = ((OneMaxSolution)(current_solution))[c];
+    }
+    int changed_index = (rand() % *((int*)data));
+    if (neighbor[changed_index]) {
+        neighbor[changed_index] = false;
+    } else {
+        neighbor[changed_index] = true;
+    }
+    return neighbor;
+}
+
 void** FindOneMaxNeighborSolutions(const void* data,
                                    const void* current_solution,
                                    int* neighbor_quantity) {
