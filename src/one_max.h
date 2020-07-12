@@ -7,7 +7,7 @@
 typedef bool* OneMaxSolution;
 
 // to count total ones of a solution, data = solution length
-int CountTotalOnes(const void* data, const void* solution);
+double CountTotalOnes(const void* data, const void* solution);
 
 // generate a random solution, data = solution length
 void* RandomOneMaxSolution(const void* data);

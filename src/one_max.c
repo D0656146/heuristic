@@ -5,20 +5,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
 
-int CountTotalOnes(const void* data, const void* solution) {
+double CountTotalOnes(const void* data, const void* solution) {
     int ones = 0;
     for (int c = 0; c < *((int*)data); c++) {
         if (((OneMaxSolution)solution)[c]) {
             ones++;
         }
     }
-    return ones;
+    return (double)ones;
 }
 
 void* RandomOneMaxSolution(const void* data) {
-    srand(time(NULL));
+    srand(clock());
     OneMaxSolution solution = malloc(*((int*)data) * sizeof(bool));
     for (int c = 0; c < *((int*)data); c++) {
         if (rand() % 2 == 1) {
@@ -31,12 +32,12 @@ void* RandomOneMaxSolution(const void* data) {
 }
 
 void* FindRandomOneMaxNeighborSolution(const void* data, const void* current_solution) {
-    srand(time(NULL));
-    OneMaxSolution neighbor = malloc(sizeof(OneMaxSolution));
+    srand(clock());
+    OneMaxSolution neighbor = malloc(*((int*)data) * sizeof(bool));
     for (int c = 0; c < *((int*)data); c++) {
         neighbor[c] = ((OneMaxSolution)(current_solution))[c];
     }
-    int changed_index = (rand() % *((int*)data));
+    int changed_index = rand() % *((int*)data);
     if (neighbor[changed_index]) {
         neighbor[changed_index] = false;
     } else {

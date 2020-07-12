@@ -35,9 +35,10 @@ void* SimulatedAnnealing(
 );
 
 // metropolis algorithm to determine if candidate solution is accepted
-bool Metropolis(const double current_profit,
-                const double candidate_profit,
-                const double temperature);
+bool Metropolis(
+    const double current_profit,
+    const double candidate_profit,
+    const double temperature);
 
 // 暫時的硬性退火函式
 double TempExponential(double current_temperature);
