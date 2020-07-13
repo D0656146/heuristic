@@ -1,3 +1,6 @@
+/**
+ * A simple try of closure in C
+ */
 #ifndef SIMPLE_CLOSURE_H_
 #define SIMPLE_CLOSURE_H_
 

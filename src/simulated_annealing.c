@@ -31,16 +31,14 @@ void* SimulatedAnnealing(const void* problem_dataset,
 
     void* current_solution = Initialize(problem_dataset);  // Initialization
     void* best_solution = current_solution;
-    void* candidate_solution;
     printf("initialize a solution \n");
     double current_profit = Evaluate(problem_dataset, current_solution);  // Evaluation
     double best_profit = current_profit;
-    double candidate_profit;
     printf("evaluation, current profit = %f \n", current_profit);
     while (true) {
-        candidate_solution = Transition(problem_dataset, current_solution);  // Transition
+        void* candidate_solution = Transition(problem_dataset, current_solution);  // Transition
         printf("generate candidate solution \n");
-        candidate_profit = Evaluate(problem_dataset, candidate_solution);  // Evaluation
+        double candidate_profit = Evaluate(problem_dataset, candidate_solution);  // Evaluation
         printf("evaluation, candidate profit = %f \n", candidate_profit);
         if (candidate_profit > best_profit) {
             if (best_solution != current_solution) {
