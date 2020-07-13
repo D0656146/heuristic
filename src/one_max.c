@@ -37,7 +37,8 @@ void* FindRandomOneMaxNeighborSolution(const void* data, const void* current_sol
     for (int c = 0; c < *((int*)data); c++) {
         neighbor[c] = ((OneMaxSolution)(current_solution))[c];
     }
-    int changed_index = rand() % *((int*)data);
+    int changed_index = rand();  // flush initial random number
+    changed_index = rand() % *((int*)data);
     if (neighbor[changed_index]) {
         neighbor[changed_index] = false;
     } else {

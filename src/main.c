@@ -8,19 +8,19 @@
 
 int main(int argc, char* argv[]) {
     int bits = 100;
-    double loggings[100];
+    double loggings[200];
     OneMaxSolution result = SimulatedAnnealing(&bits,
                                                RandomOneMaxSolution,
                                                CountTotalOnes,
                                                FindRandomOneMaxNeighborSolution,
                                                Metropolis,
                                                TempExponential,
-                                               0.1,
+                                               1,
                                                0,
                                                0,
-                                               100,
+                                               200,
                                                loggings);
-    for (int c = 0; c < 100; c++) {
+    for (int c = 0; c < 200; c++) {
         printf("%f ", loggings[c]);
     }
     return EXIT_SUCCESS;

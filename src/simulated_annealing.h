@@ -8,7 +8,7 @@
 
 #include "simple_closure.h"
 
-// simulated annealing algotithm framework
+// simulated annealing algorithm framework
 // returns a solution set in void*, remember to cast it
 // returns NULL if initial temperature > 0
 void* SimulatedAnnealing(

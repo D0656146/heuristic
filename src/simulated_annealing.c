@@ -43,8 +43,11 @@ void* SimulatedAnnealing(const void* problem_dataset,
         candidate_profit = Evaluate(problem_dataset, candidate_solution);  // Evaluation
         printf("evaluation, candidate profit = %f \n", candidate_profit);
         if (candidate_profit > best_profit) {
-            best_profit = candidate_profit;
+            if (best_solution != current_solution) {
+                free(best_solution);
+            }
             best_solution = candidate_solution;
+            best_profit = candidate_profit;
             printf("update best solution, profit = %f \n", best_profit);
         }
         if (Determination(current_profit, candidate_profit, current_temperature)) {  // Determination
@@ -90,9 +93,13 @@ bool Metropolis(const double current_profit,
                 const double temperature) {
     srand(clock());
     double transfer_rate = exp((candidate_profit - current_profit) / temperature);
-    if ((double)rand() / (RAND_MAX + 1.0) < transfer_rate) {
+    double rand01 = (double)rand();  // flush initial random number
+    rand01 = (double)rand() / (RAND_MAX + 1.0);
+    if (rand01 < transfer_rate) {
+        printf("%f < %f \n", rand01, transfer_rate);
         return true;
     } else {
+        printf("%f > %f \n", rand01, transfer_rate);
         return false;
     }
 }
