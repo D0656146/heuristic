@@ -29,4 +29,6 @@ void** FindOneMaxNeighborSolutions(
     const void* current_solution,
     int* neighbor_quantity);
 
+bool IsSameSolutions(const void* data, const void* solutionA, const void* solutionB);
+
 #endif  // ONE_MAX_H_

@@ -3,9 +3,9 @@
  */
 #include "one_max.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <time.h>
 
 double CountTotalOnes(const void* data, const void* solution) {
@@ -81,4 +81,13 @@ OneMaxSolution OneMaxDFS(int bits) {
     OneMaxSolution start = malloc(bits * sizeof(bool));
     OneMaxDFSRecursive(bits, start);
     return start;
+}
+
+bool IsSameSolutions(const void* data, const void* solutionA, const void* solutionB) {
+    for (int c = 0; c < *((int*)data); c++) {
+        if (((OneMaxSolution)solutionA)[c] != ((OneMaxSolution)solutionB)[c]) {
+            return false;
+        }
+    }
+    return true;
 }
