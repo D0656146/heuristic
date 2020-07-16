@@ -12,6 +12,9 @@ double CountTotalOnes(const void* data, const void* solution);
 // generate a random solution, data = solution length
 void* RandomOneMaxSolution(const void* data);
 
+// copy a solution
+void* CopyOneMaxSolution(const int solution_size, const void* solution);
+
 // find solution by Iterating
 OneMaxSolution OneMaxDFS(int bits);
 
@@ -30,5 +33,7 @@ void** FindOneMaxNeighborSolutions(
     int* neighbor_quantity);
 
 bool IsSameSolutions(const void* data, const void* solutionA, const void* solutionB);
+
+void SinglePointCrossover(const int solution_size, void* solutionA, void* solutionB);
 
 #endif  // ONE_MAX_H_

@@ -31,6 +31,14 @@ void* RandomOneMaxSolution(const void* data) {
     return solution;
 }
 
+void* CopyOneMaxSolution(const int solution_size, const void* solution) {
+    OneMaxSolution new_solution = malloc(solution_size * sizeof(bool));
+    for (int c = 0; c < solution_size; c++) {
+        new_solution[c] = ((OneMaxSolution)solution)[c];
+    }
+    return new_solution;
+}
+
 void* FindRandomOneMaxNeighborSolution(const void* data, const void* current_solution) {
     srand(clock());
     OneMaxSolution neighbor = malloc(*((int*)data) * sizeof(bool));
@@ -90,4 +98,15 @@ bool IsSameSolutions(const void* data, const void* solutionA, const void* soluti
         }
     }
     return true;
+}
+
+void SinglePointCrossover(const int solution_size, void* solutionA, void* solutionB) {
+    int crossover_point = rand() % (solution_size + 1);
+    for (int c = 0; c < solution_size; c++) {
+        if (c >= crossover_point) {
+            bool temp = ((OneMaxSolution)solutionA)[c];
+            ((OneMaxSolution)solutionA)[c] = ((OneMaxSolution)solutionB)[c];
+            ((OneMaxSolution)solutionA)[c] = temp;
+        }
+    }
 }
