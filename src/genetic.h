@@ -35,8 +35,8 @@ void* Genetic(
     const int population_size,
     const double crossover_rate,
     const double mutation_rate,
-    const int max_generation,  // the constraint of maximum generation
-    double loggings[]          // an array to log the best profit per generation
+    const int max_generations,  // the constraint of maximum generation
+    double loggings[]           // an array to log the best profit per generation
 );
 
 void RouletteWheel(const int population_size, void** population,
@@ -44,5 +44,10 @@ void RouletteWheel(const int population_size, void** population,
                    void* (*CopySolution)(const int solution_size, const void* solution),
                    double (*Evaluate)(const void* problem_dataset,
                                       const void* solution));
+void Tournament(const int population_size, void** population,
+                const int solution_size, const void* problem_dataset,
+                void* (*CopySolution)(const int solution_size, const void* solution),
+                double (*Evaluate)(const void* problem_dataset,
+                                   const void* solution));
 
 #endif  // GENETIC_H_

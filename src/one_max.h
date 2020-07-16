@@ -32,8 +32,12 @@ void** FindOneMaxNeighborSolutions(
     const void* current_solution,
     int* neighbor_quantity);
 
-bool IsSameSolutions(const void* data, const void* solutionA, const void* solutionB);
+bool IsSameSolutions(const int solution_size, const void* solutionA, const void* solutionB);
 
 void SinglePointCrossover(const int solution_size, void* solutionA, void* solutionB);
+
+void IndependentMutation(const int solution_size,
+                         const void* solution,
+                         const double mutation_rate);
 
 #endif  // ONE_MAX_H_

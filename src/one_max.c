@@ -91,8 +91,8 @@ OneMaxSolution OneMaxDFS(int bits) {
     return start;
 }
 
-bool IsSameSolutions(const void* data, const void* solutionA, const void* solutionB) {
-    for (int c = 0; c < *((int*)data); c++) {
+bool IsSameSolutions(const int solution_size, const void* solutionA, const void* solutionB) {
+    for (int c = 0; c < solution_size; c++) {
         if (((OneMaxSolution)solutionA)[c] != ((OneMaxSolution)solutionB)[c]) {
             return false;
         }
@@ -107,6 +107,20 @@ void SinglePointCrossover(const int solution_size, void* solutionA, void* soluti
             bool temp = ((OneMaxSolution)solutionA)[c];
             ((OneMaxSolution)solutionA)[c] = ((OneMaxSolution)solutionB)[c];
             ((OneMaxSolution)solutionA)[c] = temp;
+        }
+    }
+}
+
+void IndependentMutation(const int solution_size,
+                         const void* solution,
+                         const double mutation_rate) {
+    for (int c = 0; c < solution_size; c++) {
+        if ((double)rand() / (RAND_MAX + 1.0) < mutation_rate) {
+            if (((OneMaxSolution)solution)[c]) {
+                ((OneMaxSolution)solution)[c] = false;
+            } else {
+                ((OneMaxSolution)solution)[c] = true;
+            }
         }
     }
 }

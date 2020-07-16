@@ -24,7 +24,7 @@ void* Genetic(const void* problem_dataset,
               const int population_size,
               const double crossover_rate,
               const double mutation_rate,
-              const int max_generation,
+              const int max_generations,
               double loggings[]) {
     if (population_size % 2 != 0) {
         printf("population size must be even \n");
@@ -38,7 +38,7 @@ void* Genetic(const void* problem_dataset,
     void* best_solution = population[0];
     double best_fitness = Evaluate(problem_dataset, population[0]);
     printf("initialize population \n");
-    for (int current_generation = 0; current_generation < max_generation; current_generation++) {
+    for (int current_generation = 0; current_generation < max_generations; current_generation++) {
         Selection(population_size, population, solution_size, problem_dataset, CopySolution, Evaluate);  // Selection
         printf("select next generation \n");
         simple_shuffle(population, population_size);
@@ -95,7 +95,7 @@ void RouletteWheel(const int population_size, void** population,
                    double (*Evaluate)(const void* problem_dataset,
                                       const void* solution)) {
     double fitness[population_size];
-    double sum = 0;
+    double sum = 0.0;
     for (int c = 0; c < population_size; c++) {
         fitness[c] = Evaluate(problem_dataset, population[c]);
         sum += fitness[c];
@@ -104,9 +104,10 @@ void RouletteWheel(const int population_size, void** population,
     for (int c = 0; c < population_size; c++) {
         double rand_value = (double)(rand() % (int)sum + 1);
         for (int c1 = 0; c1 < population_size; c1++) {
-            rand_value -= fitness[c];
+            rand_value -= fitness[c1];
             if (rand_value <= 0) {
                 next_population[c] = CopySolution(solution_size, population[c1]);
+                break;
             }
         }
     }
@@ -123,12 +124,12 @@ void Tournament(const int population_size, void** population,
                                    const void* solution)) {
     void* next_population[population_size];
     for (int c = 0; c < population_size; c++) {
-        void* player1 = population[rand() % population_size];
-        void* player2 = population[rand() % population_size];
-        if (Evaluate(problem_dataset, player1) > Evaluate(problem_dataset, player2)) {
-            next_population[c] = CopySolution(solution_size, player1);
+        int player1 = rand() % population_size;
+        int player2 = rand() % population_size;
+        if (Evaluate(problem_dataset, population[player1]) > Evaluate(problem_dataset, population[player2])) {
+            next_population[c] = CopySolution(solution_size, population[player1]);
         } else {
-            next_population[c] = CopySolution(solution_size, player2);
+            next_population[c] = CopySolution(solution_size, population[player2]);
         }
     }
     for (int c = 0; c < population_size; c++) {
