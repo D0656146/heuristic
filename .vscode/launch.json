@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}\\..\\dist\\${fileBasenameNoExtension}.exe",
-            "args": ["ts", "100", "100", "0", "7", "ts.dat"],
+            "args": ["to", "30", "100", "300", "10", "0.6", "0.01", "gene_to.dat"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}\\..",
             "environment": [],

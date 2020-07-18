@@ -1,6 +1,6 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include "simple_queue.h"
 
@@ -10,7 +10,9 @@ void* TabuSearch(const void* problem_dataset,
                  void** (*Transition)(const void* problem_dataset,
                                       const void* current_solution,
                                       int* candidate_quantity),
-                 bool (*IsSameSolutions)(const void* problem_dataset, const void* solutionA, const void* solutionB),
+                 bool (*IsSameSolutions)(const void* problem_dataset,
+                                         const void* solutionA,
+                                         const void* solutionB),
                  const int tabu_list_size,
                  const int max_iterations,
                  double loggings[]) {
