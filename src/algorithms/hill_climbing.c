@@ -11,7 +11,8 @@ void HillClimbing_RP(const HeuristicAlgorithm* algorithm,
                      const int max_iterations,
                      FILE* loggings,
                      ProblemSolution* best_solution) {
-    // initialize solution
+    // initialize
+    int evaluate_times = 0;
     problem->InitialSolution_RP(dataset, best_solution);
     ProblemSolution candidate_solution_instance;
     ProblemSolution* candidate_solution = &candidate_solution_instance;
@@ -21,6 +22,7 @@ void HillClimbing_RP(const HeuristicAlgorithm* algorithm,
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // find best neighbor
         int num_neighbors = problem->CountNumNeighbors(dataset, best_solution);
+        evaluate_times += num_neighbors;
         double best_profit = best_solution->profit;
         int best_index = 0;
         for (int c_nb = 0; c_nb < num_neighbors; c_nb++) {
@@ -43,7 +45,9 @@ void HillClimbing_RP(const HeuristicAlgorithm* algorithm,
             printf("[hc] reach local optimization \n");
         }
         // Logging
-        fprintf(loggings, "%f\n", best_solution->profit);
-        printf("[hc] reach max iteration \n");
+        if (loggings) {
+            fprintf(loggings, "%d %f\n", evaluate_times, best_solution->profit);
+        }
     }
+    printf("[hc] reach max iteration \n");
 }

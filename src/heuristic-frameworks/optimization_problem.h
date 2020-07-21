@@ -20,6 +20,11 @@ typedef struct {
     double profit;
 } ProblemSolution;
 
+// default constructor of ProblemSolution
+ProblemSolution *NewEmptySolution_MA(const ProblemDataset *dataset);
+// default destructor of ProblemSolution
+void FreeSolution(ProblemSolution *solution);
+
 // abstract class of optimization problem
 // when generate a new solution, you must count its profit
 typedef struct {
@@ -38,9 +43,18 @@ typedef struct {
     int (*CountNumNeighbors)(const ProblemDataset *dataset, const ProblemSolution *solution);
     // method to clone a solution
     void (*Clone_RP)(const ProblemSolution *origin, ProblemSolution *copy);
+    bool (*IsEqual)(const ProblemDataset *dataset,
+                    const ProblemSolution *solutionA,
+                    const ProblemSolution *solutionB);
 } OptimizationProblem;
 
-// the default clone method
+// default method to count number of neighbor
+int Default_CountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution);
+// default clone method
 void *Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy);
+// default compare method
+bool *Default_IsEqual(const ProblemDataset *dataset,
+                      const ProblemSolution *solutionA,
+                      const ProblemSolution *solutionB);
 
 #endif  // OPTIMIZATION_PROBLEM_H_
