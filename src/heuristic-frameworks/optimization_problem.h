@@ -34,7 +34,7 @@ typedef struct {
                                             const ProblemSolution *current_solution,
                                             ProblemSolution *neighbor_solution);
     // method to clone a solution object
-    ProblemSolution *(*Clone_MA)(const ProblemSolution *self);
+    ProblemSolution *(*Clone_MA)(const ProblemSolution *target);
 } OptimizationProblem;
 
 // the default clone method
