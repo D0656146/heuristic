@@ -4,11 +4,11 @@
 #include <stdlib.h>
 
 ProblemSolution* SingleSolutionHeuristic_MA(const HeuristicAlgorithm* algorithm,
-                                  const OptimizationProblem* problem,
-                                  const ProblemDataset* dataset,
-                                  const int num_neighbors,
-                                  const int max_iterations,
-                                  FILE* loggings) {
+                                            const OptimizationProblem* problem,
+                                            const ProblemDataset* dataset,
+                                            const int num_neighbors,
+                                            const int max_iterations,
+                                            FILE* loggings) {
     // Initialize solution
     ProblemSolution* current_solution = problem->InitialSolution_MA(dataset);  // MA_CU
     current_solution->CountProfit_DA(dataset);

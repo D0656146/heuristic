@@ -15,6 +15,9 @@ typedef struct {
     int solution_size;
 } OneMaxProblemDataset;
 
+// constructor
+OneMaxProblemDataset *NewOneMaxProblemDataset_MA(int solution_size);
+
 // class of One max problem solution
 // extends ProblemSolution
 typedef struct {
@@ -49,13 +52,5 @@ void OneMaxGenerateNeighbors_RP(int index,
                                 const ProblemSolution *current_solution,
                                 ProblemSolution *neighbor_solution);
 double OneMaxCountProfit(const ProblemDataset *dataset, const ProblemSolution *solution);
-
-// 以下是基因的
-
-void SinglePointCrossover(const int solution_size, void *solutionA, void *solutionB);
-
-void IndependentMutation(const int solution_size,
-                         const void *solution,
-                         const double mutation_rate);
 
 #endif  // ONE_MAX_H_

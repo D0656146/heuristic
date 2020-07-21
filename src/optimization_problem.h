@@ -51,10 +51,10 @@ typedef struct {
 // default method to count number of neighbor
 int Default_CountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution);
 // default clone method
-void *Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy);
+void Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy);
 // default compare method
-bool *Default_IsEqual(const ProblemDataset *dataset,
-                      const ProblemSolution *solutionA,
-                      const ProblemSolution *solutionB);
+bool Default_IsEqual(const ProblemDataset *dataset,
+                     const ProblemSolution *solutionA,
+                     const ProblemSolution *solutionB);
 
 #endif  // OPTIMIZATION_PROBLEM_H_

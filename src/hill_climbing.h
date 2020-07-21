@@ -11,8 +11,6 @@
 // hill climbing algorithm framework
 // returns best solution in parameter
 void HillClimbing_RP(
-    // instance of the algorithm
-    const HeuristicAlgorithm* algorithm,
     // instance of the problem
     const OptimizationProblem* problem,
     // instance of problem dataset

@@ -25,12 +25,12 @@ void Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy) {
         copy->solution_ar[c] = origin->solution_ar[c];
     }
     copy->size = origin->size;
-    copy->profit = origin->size;
+    copy->profit = origin->profit;
 }
 
-bool *Default_IsEqual(const ProblemDataset *dataset,
-                      const ProblemSolution *solutionA,
-                      const ProblemSolution *solutionB) {
+bool Default_IsEqual(const ProblemDataset *dataset,
+                     const ProblemSolution *solutionA,
+                     const ProblemSolution *solutionB) {
     if (solutionA->size != solutionB->size) {
         return false;
     }

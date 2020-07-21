@@ -22,7 +22,7 @@
                 "echo": true,
                 "reveal": "always",
                 "focus": false,
-                "panel": "new"
+                "panel": "shared"
             },
             "problemMatcher": "$gcc"
         },
@@ -40,7 +40,7 @@
                 "echo": true,
                 "reveal": "always",
                 "focus": true,
-                "panel": "new"
+                "panel": "shared"
             }
         }
     ]
