@@ -5,6 +5,8 @@
 #ifndef OPTIMIZATION_PROBLEM_H_
 #define OPTIMIZATION_PROBLEM_H_
 
+#include <stdbool.h>
+
 // abstract class of problem dataset
 typedef struct {
     int solution_size;
@@ -19,25 +21,26 @@ typedef struct {
 } ProblemSolution;
 
 // abstract class of optimization problem
-// remember to call CountProfit_DA manually
+// when generate a new solution, you must count its profit
 typedef struct {
     // method to initialize a solution
-    ProblemSolution *(*InitialSolution_MA)(const ProblemDataset *dataset);
+    void (*InitialSolution_RP)(const ProblemDataset *dataset, ProblemSolution *solution);
+
+    // method to generate a neighbor solution from a solution
+    // index start from 0
+    void (*GenerateNeighbors_RP)(int index,
+                                 const ProblemDataset *dataset,
+                                 const ProblemSolution *current_solution,
+                                 ProblemSolution *neighbor_solution);
     // method to count profit of a solution
-    double (*CountProfit_DA)(const ProblemDataset *dataset);
-    // method to generate a random neighbor solution from a solution
-    void (*GenerateRandomNeighborSolution_RP)(const ProblemDataset *dataset,
-                                              const ProblemSolution *current_solution,
-                                              ProblemSolution *neighbor_solution);
-    // method to generate the best neighbor solution from a solution
-    void (*GenerateBestNeighborSolution_RP)(const ProblemDataset *dataset,
-                                            const ProblemSolution *current_solution,
-                                            ProblemSolution *neighbor_solution);
-    // method to clone a solution object
-    ProblemSolution *(*Clone_MA)(const ProblemSolution *target);
+    double (*CountProfit)(const ProblemDataset *dataset, const ProblemSolution *solution);
+    // method to count number of neighbor solutions
+    int (*CountNumNeighbors)(const ProblemDataset *dataset, const ProblemSolution *solution);
+    // method to clone a solution
+    void (*Clone_RP)(const ProblemSolution *origin, ProblemSolution *copy);
 } OptimizationProblem;
 
 // the default clone method
-ProblemSolution *Default_Clone_MA(const ProblemSolution *target);
+void *Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy);
 
 #endif  // OPTIMIZATION_PROBLEM_H_

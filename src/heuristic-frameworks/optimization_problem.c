@@ -2,14 +2,10 @@
 
 #include <stdlib.h>
 
-ProblemSolution *Default_Clone_MA(const ProblemSolution *target) {
-    ProblemSolution *duplication = malloc(sizeof(ProblemSolution));
-    duplication->solution_ar = malloc(target->size * sizeof(char));
-    for (int c = 0; c < target->size; c++) {
-        duplication->solution_ar[c] = target->solution_ar[c];
+void Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy) {
+    for (int c = 0; c < origin->size; c++) {
+        copy->solution_ar[c] = origin->solution_ar[c];
     }
-    duplication->size = target->size;
-    duplication->profit = target->profit;
-    printf("[problem] clone a solution \n");
-    return duplication;
+    copy->size = origin->size;
+    copy->profit = origin->size;
 }
