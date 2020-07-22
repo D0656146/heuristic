@@ -1,9 +1,7 @@
 #include "one_max.h"
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 OneMaxProblemDataset* NewOneMaxProblemDataset_MA(int solution_size) {
     OneMaxProblemDataset* instance = malloc(sizeof(OneMaxProblemDataset));

@@ -47,7 +47,7 @@ void HillClimbing_RP(const OptimizationProblem* problem,
             free(candidate_solution);  // RE_CA
             return;
         }
-        // Logging
+        // logging
         if (loggings) {
             fprintf(loggings, "%d %f\n", evaluate_times, best_solution->profit);
         }
