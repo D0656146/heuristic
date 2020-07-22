@@ -1,10 +1,8 @@
-
 #include "hill_climbing.h"
 
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 void HillClimbing_RP(const OptimizationProblem* problem,
                      const ProblemDataset* dataset,
@@ -25,7 +23,7 @@ void HillClimbing_RP(const OptimizationProblem* problem,
         int num_neighbors = problem->CountNumNeighbors(dataset, best_solution);
         evaluate_times += num_neighbors;
         double best_profit = __DBL_MIN__;
-        int best_index = 0;
+        int best_index = -1;
         for (int c_nb = 0; c_nb < num_neighbors; c_nb++) {
             problem->GenerateNeighbors_RP(c_nb, dataset,
                                           best_solution,
@@ -44,7 +42,7 @@ void HillClimbing_RP(const OptimizationProblem* problem,
             printf("[hc] climbing to profit = %f \n", best_solution->profit);
         } else {
             printf("[hc] reach local optimization \n");
-            free(candidate_solution);  // RE_CA
+            FreeSolution(candidate_solution);  // RE_CA
             return;
         }
         // logging
@@ -53,5 +51,5 @@ void HillClimbing_RP(const OptimizationProblem* problem,
         }
     }
     printf("[hc] reach max iteration \n");
-    free(candidate_solution);  // RE_CA
+    FreeSolution(candidate_solution);  // RE_CA
 }

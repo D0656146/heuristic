@@ -5,7 +5,7 @@
 
 ProblemSolution *NewEmptySolution_MA(const ProblemDataset *dataset) {
     ProblemSolution *instance = malloc(sizeof(ProblemSolution));
-    instance->solution_ar = malloc(dataset->solution_size * sizeof(char));
+    instance->solution_ar = calloc(dataset->solution_size, sizeof(char));
     instance->size = dataset->solution_size;
     instance->profit = 0;
     return instance;

@@ -55,13 +55,13 @@ void SimulatedAnnealing_RP(const OptimizationProblem* problem,
         printf("[sa] anneal to temperature = %f \n", current_temperature);
         if (current_temperature < min_temperature) {
             printf("[sa] reach min temperature \n");
-            free(current_solution);    // RE_CU
-            free(candidate_solution);  // RE_CA
+            FreeSolution(current_solution);    // RE_CU
+            FreeSolution(candidate_solution);  // RE_CA
         }
     }
     printf("[sa] reach max iteration \n");
-    free(current_solution);    // RE_CU
-    free(candidate_solution);  // RE_CA
+    FreeSolution(current_solution);    // RE_CU
+    FreeSolution(candidate_solution);  // RE_CA
 }
 
 bool Metropolis(const double current_profit,
