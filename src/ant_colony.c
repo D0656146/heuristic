@@ -28,13 +28,15 @@ void AntColony_RP(const AntColonyProblem* problem,
     double new_pheromone_table[num_states][num_states];
     for (int c1 = 0; c1 < num_states; c1++) {
         for (int c2 = 0; c2 < num_states; c2++) {
-            pheromone_table[c1][c2] = 0.001;  // 一個不知道是什麼的小值
+            pheromone_table[c1][c2] = 0.01;  // 一個不知道是什麼的小值
         }
     }
     for (int c1 = 0; c1 < num_states; c1++) {
         for (int c2 = 0; c2 < num_states; c2++) {
             priori_table[c1][c2] = problem->CountPriori(dataset, c1, c2);
+            //printf("%2.0f ", priori_table[c1][c2] * 100);
         }
+        //printf("\n");
     }
     printf("[aco] initialize \n");
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
@@ -57,8 +59,8 @@ void AntColony_RP(const AntColonyProblem* problem,
                 int num_candidate_state = 0;
                 for (int c_state = 0; c_state < num_states; c_state++) {
                     if (problem->IsStateAvalible(dataset, ants[c_ant], c_state)) {
-                        weights[c_state] = pow(pheromone_table[ants[c_ant]->route_ar[c_step - 1]][c_state], pheromone_influence) *
-                                           pow(priori_table[ants[c_ant]->route_ar[c_step - 1]][c_state], priori_influence);
+                        weights[num_candidate_state] = pow(pheromone_table[ants[c_ant]->route_ar[c_step - 1]][c_state], pheromone_influence) *
+                                                       pow(priori_table[ants[c_ant]->route_ar[c_step - 1]][c_state], priori_influence);
                         candidate_states[num_candidate_state] = c_state;
                         num_candidate_state++;
                     }
@@ -72,6 +74,10 @@ void AntColony_RP(const AntColonyProblem* problem,
                 ants[c_ant]->route_ar[c_step] = chosen_state;
                 // printf("[aco] go to %d \n", ants[c_ant]->route_ar[c_step]);
             }
+            /*for (int c = 0; c < ants[c_ant]->steps; c++) {
+                printf("%d->", ants[c_ant]->route_ar[c]);
+            }*/
+            printf("\n");
             ants[c_ant]->route_length = problem->CountRouteLength(dataset, ants[c_ant]);
             printf("[aco] route length = %f \n", ants[c_ant]->route_length);
             // update best

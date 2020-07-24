@@ -16,7 +16,6 @@ double **PointFileToAdjacencyTable_MA(FILE *fptr) {
     int num_points;
     int trash;
     fscanf(fptr, "%d", &num_points);
-    printf("%d ", num_points);
     double points[num_points][2];
     for (int c = 0; c < num_points; c++) {
         fscanf(fptr, "%d %lf %lf", &trash, &(points[c][0]), &(points[c][1]));
@@ -27,9 +26,9 @@ double **PointFileToAdjacencyTable_MA(FILE *fptr) {
         for (int c2 = 0; c2 < num_points; c2++) {
             adjacency_table[c1][c2] = sqrt(pow(points[c1][0] - points[c2][0], 2) +
                                            pow(points[c1][1] - points[c2][1], 2));
-            printf("%.1f ", adjacency_table[c1][c2]);
+            //printf("%2.0f ", adjacency_table[c1][c2]);
         }
-        printf("\n");
+        //printf("\n");
     }
     return adjacency_table;
 }
