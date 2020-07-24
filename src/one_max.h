@@ -1,7 +1,6 @@
 /**
  * Class of one-max problem
  */
-
 #ifndef ONE_MAX_H_
 #define ONE_MAX_H_
 
@@ -13,6 +12,7 @@
 // extends ProblemDataset
 typedef struct {
     int solution_size;
+    void *data;
 } OneMaxProblemDataset;
 
 // constructor

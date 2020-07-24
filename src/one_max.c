@@ -6,6 +6,7 @@
 OneMaxProblemDataset* NewOneMaxProblemDataset_MA(int solution_size) {
     OneMaxProblemDataset* instance = malloc(sizeof(OneMaxProblemDataset));
     instance->solution_size = solution_size;
+    instance->data = NULL;
     return instance;
 }
 

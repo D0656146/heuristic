@@ -9,28 +9,37 @@
 
 #include "optimization_problem.h"
 
+// class of ant
 typedef struct {
     int* route_ar;
     int steps;
     double route_length;
 } Ant;
 
-Ant* NewEmptyAnt_MA(const ProblemDataset* dataset);  // 為了TSP路徑比解多一 初始路徑超級長
+// default constructor of Ant
+// route_length = solution_length + 1 for tsp
+Ant* NewEmptyAnt_MA(const ProblemDataset* dataset);
+// default destructor of Ant
 void FreeAnt(Ant* ant);
+// default clone method of Ant
 void CloneAnt_RP(const Ant* origin, Ant* copy);
 
+// abstract class of problem to be solve with ACO
 typedef struct {
     // method to count number of states from dataset
     int (*CountNumStates)(const ProblemDataset* dataset);
     // method to count priori value of a step
     double (*CountPriori)(const ProblemDataset* dataset, const int current_state, const int next_state);
     // method to determine if a state is still avalible for an ant to go
-    bool (*IsStateAvalible)(const Ant* ant, const int state);
+    bool (*IsStateAvalible)(const ProblemDataset* dataset, const Ant* ant, const int state);
     // method to count the length of a route
     double (*CountRouteLength)(const ProblemDataset* dataset, const Ant* ant);
     // method to translate a route to a solution
-    void (*AntToSolution_RP)(const Ant* ant, ProblemSolution* solution);
+    void (*AntToSolution_RP)(const ProblemDataset* dataset, const Ant* ant, ProblemSolution* solution);
 } AntColonyProblem;  // 之後是否轉移到OP.h那邊
+
+// default function to count number of states
+int Default_CountNumStates(const ProblemDataset* dataset);
 
 // simulated annealing algorithm framework
 // returns best solution in parameter

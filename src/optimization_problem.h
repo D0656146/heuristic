@@ -10,6 +10,7 @@
 // abstract class of problem dataset
 typedef struct {
     int solution_size;
+    void *data;
 } ProblemDataset;
 
 // abstract class of problem solution
