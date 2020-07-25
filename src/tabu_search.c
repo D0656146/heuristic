@@ -37,22 +37,26 @@ void TabuSearch_RP(const OptimizationProblem* problem,
 
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // find best neighbor not in tabu list
-        int num_neighbors = problem->CountNumNeighbors(dataset, best_solution);
+        int num_neighbors = problem->CountNumNeighbors(dataset, current_solution);
         evaluate_times += num_neighbors;
-        double best_profit = __DBL_MIN__;
+        double best_profit = -1 * __DBL_MAX__;
         int best_index = -1;
         for (int c_nb = 0; c_nb < num_neighbors; c_nb++) {
             problem->GenerateNeighbors_RP(c_nb, dataset,
-                                          best_solution,
+                                          current_solution,
                                           candidate_solution);
             // compare with tabu list
             // 之後用GNU函式庫的資料結構重寫
+            bool tabued = false;
             for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {
                 if (problem->IsEqual(dataset, candidate_solution, tabu_list[c_tl])) {
-                    printf("[ts] tabued \n");
-                    best_profit = __DBL_MIN__;
+                    //printf("[ts] tabued %d \n", c_tl);
+                    tabued = true;
                     break;
                 }
+            }
+            if (tabued) {
+                continue;
             }
             if (candidate_solution->profit > best_profit) {
                 best_profit = candidate_solution->profit;
@@ -74,7 +78,7 @@ void TabuSearch_RP(const OptimizationProblem* problem,
                                       current_solution,
                                       candidate_solution);
         problem->Clone_RP(candidate_solution, current_solution);
-        printf("[ts] transfer to profit = %f \n", current_solution->profit);
+        //printf("[ts] transfer to profit = %f \n", current_solution->profit);
         // update tabu list
         // 之後用GNU函式庫的資料結構重寫
         problem->Clone_RP(current_solution, tabu_list[list_tail]);

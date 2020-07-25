@@ -22,7 +22,7 @@ void HillClimbing_RP(const OptimizationProblem* problem,
         // find best neighbor
         int num_neighbors = problem->CountNumNeighbors(dataset, best_solution);
         evaluate_times += num_neighbors;
-        double best_profit = __DBL_MIN__;
+        double best_profit = -1 * __DBL_MAX__;
         int best_index = -1;
         for (int c_nb = 0; c_nb < num_neighbors; c_nb++) {
             problem->GenerateNeighbors_RP(c_nb, dataset,

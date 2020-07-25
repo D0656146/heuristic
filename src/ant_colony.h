@@ -75,5 +75,7 @@ void AntColony_RP(
 int RouletteWheels(const double* weights, const int num_candidate_state);
 // inverse route length to count pheromone
 double Inverse(const double pheromone_per_ant, const double route_length);
+// inverse route length and square to count pheromone
+double InverseSquare(const double pheromone_per_ant, const double route_length);
 
 #endif  // ANT_COLONY_H_

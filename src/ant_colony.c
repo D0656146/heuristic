@@ -26,9 +26,13 @@ void AntColony_RP(const AntColonyProblem* problem,
     double pheromone_table[num_states][num_states];
     double priori_table[num_states][num_states];
     double new_pheromone_table[num_states][num_states];
+    double init_pheromone = 0.0001 / pow(1 - evaporation_rate, (double)max_iterations);
+    printf("%f\n", init_pheromone);
     for (int c1 = 0; c1 < num_states; c1++) {
         for (int c2 = 0; c2 < num_states; c2++) {
-            pheromone_table[c1][c2] = 0.01;  // 一個不知道是什麼的小值
+            // 說不定是 pheromone_per_ant / 路徑長
+            // pheromone_table[c1][c2] = 10000000;  // 待思考
+            pheromone_table[c1][c2] = init_pheromone;
         }
     }
     for (int c1 = 0; c1 < num_states; c1++) {
@@ -38,7 +42,7 @@ void AntColony_RP(const AntColonyProblem* problem,
         }
         //printf("\n");
     }
-    printf("[aco] initialize \n");
+    //printf("[aco] initialize \n");
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // reset new pheromone table
         for (int c1 = 0; c1 < num_states; c1++) {
@@ -47,10 +51,10 @@ void AntColony_RP(const AntColonyProblem* problem,
             }
         }
         for (int c_ant = 0; c_ant < num_ants; c_ant++) {
-            printf("[aco] ant %d \n", c_ant + 1);
+            //printf("[aco] ant %d \n", c_ant + 1);
             int start_state = rand() % num_states;
             ants[c_ant]->route_ar[0] = start_state;
-            printf("[aco] start at %d \n", ants[c_ant]->route_ar[0]);
+            //printf("[aco] start at %d \n", ants[c_ant]->route_ar[0]);
             ants[c_ant]->steps = 1;
             // choose next step
             for (int c_step = 1;; c_step++, ants[c_ant]->steps = c_step) {
@@ -61,6 +65,12 @@ void AntColony_RP(const AntColonyProblem* problem,
                     if (problem->IsStateAvalible(dataset, ants[c_ant], c_state)) {
                         weights[num_candidate_state] = pow(pheromone_table[ants[c_ant]->route_ar[c_step - 1]][c_state], pheromone_influence) *
                                                        pow(priori_table[ants[c_ant]->route_ar[c_step - 1]][c_state], priori_influence);
+                        // weights[num_candidate_state] = pow(pheromone_table[ants[c_ant]->route_ar[c_step - 1]][c_state] +
+                        //                                        new_pheromone_table[ants[c_ant]->route_ar[c_step - 1]][c_state],
+                        //                                    pheromone_influence) *
+                        //                                pow(priori_table[ants[c_ant]->route_ar[c_step - 1]][c_state], priori_influence);
+                        // weights[num_candidate_state] = pheromone_table[ants[c_ant]->route_ar[c_step - 1]][c_state] * pheromone_influence +
+                        //                                priori_table[ants[c_ant]->route_ar[c_step - 1]][c_state] * priori_influence;
                         candidate_states[num_candidate_state] = c_state;
                         num_candidate_state++;
                     }
@@ -77,9 +87,9 @@ void AntColony_RP(const AntColonyProblem* problem,
             /*for (int c = 0; c < ants[c_ant]->steps; c++) {
                 printf("%d->", ants[c_ant]->route_ar[c]);
             }*/
-            printf("\n");
+            //printf("\n");
             ants[c_ant]->route_length = problem->CountRouteLength(dataset, ants[c_ant]);
-            printf("[aco] route length = %f \n", ants[c_ant]->route_length);
+            // printf("[aco] route length = %f \n", ants[c_ant]->route_length);
             // update best
             if (ants[c_ant]->route_length < best_ant->route_length) {
                 CloneAnt_RP(ants[c_ant], best_ant);
@@ -90,6 +100,11 @@ void AntColony_RP(const AntColonyProblem* problem,
                 new_pheromone_table[ants[c_ant]->route_ar[c_step - 1]][ants[c_ant]->route_ar[c_step]] += pheromone;
             }
         }
+        // 最好的螞蟻再加
+        // double pheromone = CountPheromone(pheromone_per_ant, best_ant->route_length);
+        // for (int c_step = 1; c_step < best_ant->steps; c_step++) {
+        //     new_pheromone_table[best_ant->route_ar[c_step - 1]][best_ant->route_ar[c_step]] += pheromone;
+        // }
         // update pheromone table
         for (int c1 = 0; c1 < num_states; c1++) {
             for (int c2 = 0; c2 < num_states; c2++) {
@@ -97,9 +112,15 @@ void AntColony_RP(const AntColonyProblem* problem,
                 pheromone_table[c1][c2] += new_pheromone_table[c1][c2];
             }
         }
+        // // update pheromone table
+        // for (int c1 = 0; c1 < num_states; c1++) {
+        //     for (int c2 = 0; c2 < num_states; c2++) {
+        //         new_pheromone_table[c1][c2] *= (1.0 - evaporation_rate);
+        //     }
+        // }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %f\n", c_iter * num_ants, best_ant->route_length);
+            fprintf(loggings, "%d %f\n", (c_iter + 1) * num_ants, best_ant->route_length);
         }
     }
     problem->AntToSolution_RP(dataset, best_ant, best_solution);
@@ -148,4 +169,8 @@ int RouletteWheels(const double* weights, const int num_candidate_state) {
 }
 double Inverse(const double pheromone_per_ant, const double route_length) {
     return pheromone_per_ant / route_length;
+}
+
+double InverseSquare(const double pheromone_per_ant, const double route_length) {
+    return pheromone_per_ant / (route_length * route_length);
 }

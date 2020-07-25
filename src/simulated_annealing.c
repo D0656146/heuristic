@@ -22,11 +22,11 @@ void SimulatedAnnealing_RP(const OptimizationProblem* problem,
     problem->InitialSolution_RP(dataset, current_solution);
     problem->Clone_RP(current_solution, best_solution);
     if (loggings) {
-        fprintf(loggings, "0 %f\n", best_solution->profit);
+        //printf(loggings, "0 %f\n", best_solution->profit);
     }
-    printf("[sa] initialize solution, profit = %f \n", best_solution->profit);
+    //printf("[sa] initialize solution, profit = %f \n", best_solution->profit);
     double current_temperature = initial_temperature;
-    printf("[sa] initial temperature = %f \n", current_temperature);
+    //printf("[sa] initial temperature = %f \n", current_temperature);
 
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // find random neighbor
@@ -38,9 +38,9 @@ void SimulatedAnnealing_RP(const OptimizationProblem* problem,
         // determination
         if (Determination(current_solution->profit, candidate_solution->profit, current_temperature)) {
             problem->Clone_RP(candidate_solution, current_solution);
-            printf("[sa] accept, transfer to profit = %f \n", current_solution->profit);
+            //printf("[sa] accept, transfer to profit = %f \n", current_solution->profit);
         } else {
-            printf("[sa] decline \n");
+            //printf("[sa] decline \n");
         }
         // update best
         if (current_solution->profit > best_solution->profit) {
@@ -52,14 +52,14 @@ void SimulatedAnnealing_RP(const OptimizationProblem* problem,
         }
         // anneal
         current_temperature = Anneal(current_temperature);
-        printf("[sa] anneal to temperature = %f \n", current_temperature);
+        //printf("[sa] anneal to temperature = %f \n", current_temperature);
         if (current_temperature < min_temperature) {
-            printf("[sa] reach min temperature \n");
+            //printf("[sa] reach min temperature \n");
             FreeSolution(current_solution);    // RE_CU
             FreeSolution(candidate_solution);  // RE_CA
         }
     }
-    printf("[sa] reach max iteration \n");
+    //printf("[sa] reach max iteration \n");
     FreeSolution(current_solution);    // RE_CU
     FreeSolution(candidate_solution);  // RE_CA
 }

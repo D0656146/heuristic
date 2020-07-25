@@ -33,6 +33,86 @@ double **PointFileToAdjacencyTable_MA(FILE *fptr) {
     return adjacency_table;
 }
 
+TSP *NewTSP_MA() {
+    TSP *instance = malloc(sizeof(TSP));
+    instance->InitialSolution_RP = TSPRandomSolution_RP;
+    instance->GenerateNeighbors_RP = TSPGenerateNeighbors_RP;
+    instance->CountProfit = TSPCountProfit;
+    instance->CountNumNeighbors = TSPCountNumNeighbors;
+    instance->Clone_RP = Default_Clone_RP;
+    instance->IsEqual = TSPIsEqual;
+    return instance;
+}
+
+void TSPRandomSolution_RP(const ProblemDataset *dataset, ProblemSolution *solution) {
+    for (int c = 0; c < solution->size; c++) {
+        solution->solution_ar[c] = '0' + c;
+    }
+    for (int c = 0; c < solution->size; c++) {
+        int rand_point = rand() % solution->size;
+        char temp = solution->solution_ar[c];
+        solution->solution_ar[c] = solution->solution_ar[rand_point];
+        solution->solution_ar[rand_point] = temp;
+    }
+    solution->profit = TSPCountProfit(dataset, solution);
+}
+
+void TSPGenerateNeighbors_RP(int index,
+                             const ProblemDataset *dataset,
+                             const ProblemSolution *current_solution,
+                             ProblemSolution *neighbor_solution) {  // 先試兩個換
+    Default_Clone_RP(current_solution, neighbor_solution);
+    int cityA = index / current_solution->size;
+    int cityB = index % current_solution->size;
+    char temp = neighbor_solution->solution_ar[cityA];
+    neighbor_solution->solution_ar[cityA] = neighbor_solution->solution_ar[cityB];
+    neighbor_solution->solution_ar[cityB] = temp;
+    neighbor_solution->profit = TSPCountProfit(dataset, neighbor_solution);
+}
+
+double TSPCountProfit(const ProblemDataset *dataset, const ProblemSolution *solution) {
+    double **adjacency_table = (double **)(dataset->data);
+    double length = 0.0;
+    for (int c = 1; c < solution->size; c++) {
+        length += *(*(adjacency_table + solution->solution_ar[c - 1] - '0') + solution->solution_ar[c] - '0');
+        //printf("%c", solution->solution_ar[c - 1]);
+    }
+    //printf("%c\n", solution->solution_ar[solution->size - 1]);
+    length += *(*(adjacency_table + solution->solution_ar[0] - '0') + solution->solution_ar[solution->size - 1] - '0');
+    return 0.0 - length;
+}
+
+int TSPCountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution) {
+    return solution->size * solution->size;
+}
+
+bool TSPIsEqual(const ProblemDataset *dataset,
+                const ProblemSolution *solutionA,
+                const ProblemSolution *solutionB) {
+    if (solutionA->size != solutionB->size) {
+        return false;
+    }
+    int start_ptr = -1;
+    for (int c = 0; c < solutionA->size; c++) {
+        if (solutionA->solution_ar[0] == solutionB->solution_ar[c]) {
+            start_ptr = c;
+            break;
+        }
+    }
+    if (start_ptr == -1) {
+        return false;
+    }
+    for (int c = 0; c < solutionA->size; c++) {
+        if (start_ptr + c >= solutionA->size) {
+            start_ptr -= solutionA->size;
+        }
+        if (solutionA->solution_ar[c] != solutionB->solution_ar[start_ptr + c]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 TSPAnt *NewTSPAnt_MA() {
     TSPAnt *instance = malloc(sizeof(TSPAnt));
     instance->CountNumStates = Default_CountNumStates;
