@@ -10,18 +10,18 @@
 
 // hill climbing algorithm framework
 // returns best solution in parameter
-void HillClimbing_RP(
+DiscreteProblemSolution* HillClimbing_MA(
     // instance of the problem
-    const OptimizationProblem* problem,
+    const DiscreteOptimizationProblem* problem,
     // instance of problem dataset
-    const ProblemDataset* dataset,
+    const DiscreteProblemDataset* dataset,
+    // the initial solution
+    const DiscreteProblemSolution* initial_solution,
     // constraint of max iterations
     const int max_iterations,
-    // file pointer of logging
+    // file pointer for logging
     // must had already opened a file for writing
     // pass NULL to skip logging
-    FILE* loggings,
-    // return here
-    ProblemSolution* best_solution);
+    FILE* loggings);
 
 #endif  // HILL_CLIMBING_H_

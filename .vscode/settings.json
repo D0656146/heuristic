@@ -1,7 +1,9 @@
 {
     "files.associations": {
         "*.tcc": "cpp",
-        "type_traits": "c"
+        "type_traits": "c",
+        "ostream": "cpp",
+        "limits": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

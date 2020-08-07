@@ -10,12 +10,14 @@
 #include "optimization_problem.h"
 
 // simulated annealing algorithm framework
-// returns best solution in parameter
-void SimulatedAnnealing_RP(
+// returns best solution
+DiscreteProblemSolution* SimulatedAnnealing_RP(
     // instance of the problem
-    const OptimizationProblem* problem,
+    const DiscreteOptimizationProblem* problem,
     // instance of problem dataset
-    const ProblemDataset* dataset,
+    const DiscreteProblemDataset* dataset,
+    // the initial solution
+    const DiscreteProblemSolution* initial_solution,
     // initial temperature
     const double initial_temperature,
     // the constraint of minimum temperature
@@ -33,9 +35,7 @@ void SimulatedAnnealing_RP(
     // file pointer of logging
     // must had already opened a file for writing
     // pass NULL to skip logging
-    FILE* loggings,
-    // return here
-    ProblemSolution* best_solution);
+    FILE* loggings);
 
 // metropolis function to determine if candidate solution is accepted
 bool Metropolis(

@@ -1,32 +1,31 @@
 #include "simulated_annealing.h"
 
 #include <math.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 
-void SimulatedAnnealing_RP(const OptimizationProblem* problem,
-                           const ProblemDataset* dataset,
-                           const double initial_temperature,
-                           const double min_temperature,
-                           const int max_iterations,
-                           bool (*Determination)(const double current_profit,
-                                                 const double candidate_profit,
-                                                 const double temperature),
-                           double (*Anneal)(double current_temperature),
-                           FILE* loggings,
-                           ProblemSolution* best_solution) {
+DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem* problem,
+                                               const DiscreteProblemDataset* dataset,
+                                               const DiscreteProblemSolution* initial_solution,
+                                               const double initial_temperature,
+                                               const double min_temperature,
+                                               const int max_iterations,
+                                               bool (*Determination)(const double current_profit,
+                                                                     const double candidate_profit,
+                                                                     const double temperature),
+                                               double (*Anneal)(double current_temperature),
+                                               FILE* loggings) {
     // initialize
-    ProblemSolution* current_solution = NewEmptySolution_MA(dataset);    // MA_CU
-    ProblemSolution* candidate_solution = NewEmptySolution_MA(dataset);  // MA_CA
-    problem->InitialSolution_RP(dataset, current_solution);
-    problem->Clone_RP(current_solution, best_solution);
+    DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA(dataset);
+    problem->Clone_RP(initial_solution, best_solution);
+    DiscreteProblemSolution* current_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CU
+    problem->Clone_RP(initial_solution, current_solution);
+    DiscreteProblemSolution* candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CA
     if (loggings) {
-        //printf(loggings, "0 %f\n", best_solution->profit);
+        fprintf(loggings, "0 %lf\n", best_solution->profit);
     }
-    //printf("[sa] initialize solution, profit = %f \n", best_solution->profit);
+    printf("[sa] initialize solution, profit = %lf \n", best_solution->profit);
     double current_temperature = initial_temperature;
-    //printf("[sa] initial temperature = %f \n", current_temperature);
+    printf("[sa] initial temperature = %lf \n", current_temperature);
 
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // find random neighbor
@@ -38,9 +37,16 @@ void SimulatedAnnealing_RP(const OptimizationProblem* problem,
         // determination
         if (Determination(current_solution->profit, candidate_solution->profit, current_temperature)) {
             problem->Clone_RP(candidate_solution, current_solution);
-            //printf("[sa] accept, transfer to profit = %f \n", current_solution->profit);
+            printf("[sa] accept, transfer to profit = %lf \n", current_solution->profit);
+            // another annealing strategy
+            /*
+            if (current_solution->profit > candidate_solution->profit) {
+                current_temperature = Anneal(current_temperature);
+                printf("[sa] anneal to temperature = %lf \n", current_temperature);
+            }
+            */
         } else {
-            //printf("[sa] decline \n");
+            printf("[sa] decline \n");
         }
         // update best
         if (current_solution->profit > best_solution->profit) {
@@ -48,27 +54,29 @@ void SimulatedAnnealing_RP(const OptimizationProblem* problem,
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %f\n", c_iter + 1, best_solution->profit);
+            fprintf(loggings, "%d %lf\n", c_iter + 1, best_solution->profit);
         }
         // anneal
         current_temperature = Anneal(current_temperature);
-        //printf("[sa] anneal to temperature = %f \n", current_temperature);
+        printf("[sa] anneal to temperature = %lf \n", current_temperature);
         if (current_temperature < min_temperature) {
-            //printf("[sa] reach min temperature \n");
-            FreeSolution(current_solution);    // RE_CU
-            FreeSolution(candidate_solution);  // RE_CA
+            printf("[sa] reach min temperature \n");
+            FreeDiscreteSolution(current_solution);    // RE_CU
+            FreeDiscreteSolution(candidate_solution);  // RE_CA
+            return best_solution;
         }
     }
-    //printf("[sa] reach max iteration \n");
-    FreeSolution(current_solution);    // RE_CU
-    FreeSolution(candidate_solution);  // RE_CA
+    printf("[sa] reach max iteration \n");
+    FreeDiscreteSolution(current_solution);    // RE_CU
+    FreeDiscreteSolution(candidate_solution);  // RE_CA
+    return best_solution;
 }
 
 bool Metropolis(const double current_profit,
                 const double candidate_profit,
                 const double temperature) {
     double transfer_rate = exp((candidate_profit - current_profit) / temperature);
-    double rand01 = (double)rand() / (RAND_MAX + 1.0);
+    double rand01 = (double)rand() / (RAND_MAX);
     if (rand01 < transfer_rate) {
         return true;
     } else {

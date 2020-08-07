@@ -11,51 +11,48 @@
 typedef struct {
     int solution_size;
     void *data;
-} ProblemDataset;
+} DiscreteProblemDataset;
 
 // abstract class of problem solution
 typedef struct {
-    // solutions have to be encoded to char arrays
-    char *solution_ar;
+    // encode solutions to int arrays
+    int *solution_ar;
     int size;
     double profit;
-} ProblemSolution;
+} DiscreteProblemSolution;
 
-// default constructor of ProblemSolution
-ProblemSolution *NewEmptySolution_MA(const ProblemDataset *dataset);
-// default destructor of ProblemSolution
-void FreeSolution(ProblemSolution *solution);
+// default constructor of DiscreteProblemSolution
+DiscreteProblemSolution *NewEmptyDiscreteSolution_MA(const DiscreteProblemDataset *dataset);
+// default destructor of DiscreteProblemSolution
+void FreeDiscreteSolution(DiscreteProblemSolution *solution);
 
 // abstract class of optimization problem
 // when generate a new solution, you must count its profit
 typedef struct {
-    // method to initialize a solution
-    void (*InitialSolution_RP)(const ProblemDataset *dataset, ProblemSolution *solution);
-
     // method to generate a neighbor solution from a solution
     // index start from 0
     void (*GenerateNeighbors_RP)(int index,
-                                 const ProblemDataset *dataset,
-                                 const ProblemSolution *current_solution,
-                                 ProblemSolution *neighbor_solution);
+                                 const DiscreteProblemDataset *dataset,
+                                 const DiscreteProblemSolution *current_solution,
+                                 DiscreteProblemSolution *neighbor_solution);
     // method to count profit of a solution
-    double (*CountProfit)(const ProblemDataset *dataset, const ProblemSolution *solution);
+    double (*CountProfit)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
     // method to count number of neighbor solutions
-    int (*CountNumNeighbors)(const ProblemDataset *dataset, const ProblemSolution *solution);
+    int (*CountNumNeighbors)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
     // method to clone a solution
-    void (*Clone_RP)(const ProblemSolution *origin, ProblemSolution *copy);
-    bool (*IsEqual)(const ProblemDataset *dataset,
-                    const ProblemSolution *solutionA,
-                    const ProblemSolution *solutionB);
-} OptimizationProblem;
+    void (*Clone_RP)(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
+    bool (*IsEqual)(const DiscreteProblemDataset *dataset,
+                    const DiscreteProblemSolution *solutionA,
+                    const DiscreteProblemSolution *solutionB);
+} DiscreteOptimizationProblem;
 
 // default method to count number of neighbor
-int Default_CountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution);
+int Default_CountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
 // default clone method
-void Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy);
+void Default_Clone_RP(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
 // default compare method
-bool Default_IsEqual(const ProblemDataset *dataset,
-                     const ProblemSolution *solutionA,
-                     const ProblemSolution *solutionB);
+bool Default_IsEqual(const DiscreteProblemDataset *dataset,
+                     const DiscreteProblemSolution *solutionA,
+                     const DiscreteProblemSolution *solutionB);
 
 #endif  // OPTIMIZATION_PROBLEM_H_

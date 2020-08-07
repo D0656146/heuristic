@@ -1,26 +1,25 @@
 #include "optimization_problem.h"
 
-#include <stdbool.h>
 #include <stdlib.h>
 
-ProblemSolution *NewEmptySolution_MA(const ProblemDataset *dataset) {
-    ProblemSolution *instance = malloc(sizeof(ProblemSolution));
+DiscreteProblemSolution *NewEmptyDiscreteSolution_MA(const DiscreteProblemDataset *dataset) {
+    DiscreteProblemSolution *instance = malloc(sizeof(DiscreteProblemSolution));
     instance->solution_ar = calloc(dataset->solution_size, sizeof(char));
     instance->size = dataset->solution_size;
-    instance->profit = 0;
+    instance->profit = -1 * __DBL_MAX__;
     return instance;
 }
 
-void FreeSolution(ProblemSolution *solution) {
+void FreeDiscreteSolution(DiscreteProblemSolution *solution) {
     free(solution->solution_ar);
     free(solution);
 }
 
-int Default_CountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution) {
+int Default_CountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
     return solution->size;
 }
 
-void Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy) {
+void Default_Clone_RP(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy) {
     for (int c = 0; c < origin->size; c++) {
         copy->solution_ar[c] = origin->solution_ar[c];
     }
@@ -28,9 +27,9 @@ void Default_Clone_RP(const ProblemSolution *origin, ProblemSolution *copy) {
     copy->profit = origin->profit;
 }
 
-bool Default_IsEqual(const ProblemDataset *dataset,
-                     const ProblemSolution *solutionA,
-                     const ProblemSolution *solutionB) {
+bool Default_IsEqual(const DiscreteProblemDataset *dataset,
+                     const DiscreteProblemSolution *solutionA,
+                     const DiscreteProblemSolution *solutionB) {
     if (solutionA->size != solutionB->size) {
         return false;
     }

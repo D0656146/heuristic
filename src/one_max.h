@@ -9,7 +9,7 @@
 #include "optimization_problem.h"
 
 // class of one max problem dataset
-// extends ProblemDataset
+// extends DiscreteProblemDataset
 typedef struct {
     int solution_size;
     void *data;
@@ -19,7 +19,7 @@ typedef struct {
 OneMaxProblemDataset *NewOneMaxProblemDataset_MA(int solution_size);
 
 // class of One max problem solution
-// extends ProblemSolution
+// extends DiscreteProblemSolution
 typedef struct {
     // '1' or '0'
     char *solution_ar;
@@ -30,27 +30,27 @@ typedef struct {
 // class of one max problem
 // extends OptimizationProblem
 typedef struct {
-    void (*InitialSolution_RP)(const ProblemDataset *dataset, ProblemSolution *solution);
+    void (*InitialSolution_RP)(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
     void (*GenerateNeighbors_RP)(int index,
-                                 const ProblemDataset *dataset,
-                                 const ProblemSolution *current_solution,
-                                 ProblemSolution *neighbor_solution);
-    double (*CountProfit)(const ProblemDataset *dataset, const ProblemSolution *solution);
-    int (*CountNumNeighbors)(const ProblemDataset *dataset, const ProblemSolution *solution);
-    void (*Clone_RP)(const ProblemSolution *origin, ProblemSolution *copy);
-    bool (*IsEqual)(const ProblemDataset *dataset,
-                    const ProblemSolution *solutionA,
-                    const ProblemSolution *solutionB);
+                                 const DiscreteProblemDataset *dataset,
+                                 const DiscreteProblemSolution *current_solution,
+                                 DiscreteProblemSolution *neighbor_solution);
+    double (*CountProfit)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
+    int (*CountNumNeighbors)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
+    void (*Clone_RP)(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
+    bool (*IsEqual)(const DiscreteProblemDataset *dataset,
+                    const DiscreteProblemSolution *solutionA,
+                    const DiscreteProblemSolution *solutionB);
 } OneMaxProblem;
 
 // constructor
 OneMaxProblem *NewOneMaxProblem_MA();
 // methods
-void OneMaxRandomSolution_RP(const ProblemDataset *dataset, ProblemSolution *solution);
+void OneMaxRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
 void OneMaxGenerateNeighbors_RP(int index,
-                                const ProblemDataset *dataset,
-                                const ProblemSolution *current_solution,
-                                ProblemSolution *neighbor_solution);
-double OneMaxCountProfit(const ProblemDataset *dataset, const ProblemSolution *solution);
+                                const DiscreteProblemDataset *dataset,
+                                const DiscreteProblemSolution *current_solution,
+                                DiscreteProblemSolution *neighbor_solution);
+double OneMaxCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
 
 #endif  // ONE_MAX_H_

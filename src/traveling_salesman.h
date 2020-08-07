@@ -10,7 +10,7 @@
 #include "optimization_problem.h"
 
 // class of TSP dataset
-// extends ProblemDataset
+// extends DiscreteProblemDataset
 typedef struct {
     int solution_size;
     double **adjacency_table;
@@ -20,9 +20,11 @@ typedef struct {
 TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table);
 // 讀點的檔轉成鄰接表
 double **PointFileToAdjacencyTable_MA(FILE *fptr);
+double **ReadPointFromFile_MA(FILE *fptr, int *num_points);
+void Draw(double **point_table, DiscreteProblemSolution *solution, FILE *fptr);
 
 // class of TSP solution
-// extends ProblemSolution
+// extends DiscreteProblemSolution
 typedef struct {
     char *solution_ar;
     int size;
@@ -32,49 +34,49 @@ typedef struct {
 // class of TSP
 // extends OptimizationProblem
 typedef struct {
-    void (*InitialSolution_RP)(const ProblemDataset *dataset, ProblemSolution *solution);
+    void (*InitialSolution_RP)(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
     void (*GenerateNeighbors_RP)(int index,
-                                 const ProblemDataset *dataset,
-                                 const ProblemSolution *current_solution,
-                                 ProblemSolution *neighbor_solution);
-    double (*CountProfit)(const ProblemDataset *dataset, const ProblemSolution *solution);
-    int (*CountNumNeighbors)(const ProblemDataset *dataset, const ProblemSolution *solution);
-    void (*Clone_RP)(const ProblemSolution *origin, ProblemSolution *copy);
-    bool (*IsEqual)(const ProblemDataset *dataset,
-                    const ProblemSolution *solutionA,
-                    const ProblemSolution *solutionB);
+                                 const DiscreteProblemDataset *dataset,
+                                 const DiscreteProblemSolution *current_solution,
+                                 DiscreteProblemSolution *neighbor_solution);
+    double (*CountProfit)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
+    int (*CountNumNeighbors)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
+    void (*Clone_RP)(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
+    bool (*IsEqual)(const DiscreteProblemDataset *dataset,
+                    const DiscreteProblemSolution *solutionA,
+                    const DiscreteProblemSolution *solutionB);
 } TSP;
 
 // constructor
 TSP *NewTSP_MA();
 // methods
-void TSPRandomSolution_RP(const ProblemDataset *dataset, ProblemSolution *solution);
+void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
 void TSPGenerateNeighbors_RP(int index,
-                             const ProblemDataset *dataset,
-                             const ProblemSolution *current_solution,
-                             ProblemSolution *neighbor_solution);  // 可能有隨便兩個換和相鄰換兩種
-double TSPCountProfit(const ProblemDataset *dataset, const ProblemSolution *solution);
-int TSPCountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution);  // 可能有隨便兩個換和相鄰換兩種
-bool TSPIsEqual(const ProblemDataset *dataset,
-                const ProblemSolution *solutionA,
-                const ProblemSolution *solutionB);
+                             const DiscreteProblemDataset *dataset,
+                             const DiscreteProblemSolution *current_solution,
+                             DiscreteProblemSolution *neighbor_solution);  // 可能有隨便兩個換和相鄰換兩種
+double TSPCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
+int TSPCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);  // 可能有隨便兩個換和相鄰換兩種
+bool TSPIsEqual(const DiscreteProblemDataset *dataset,
+                const DiscreteProblemSolution *solutionA,
+                const DiscreteProblemSolution *solutionB);
 
 // TSP for ant colony
 // extends AntColonyProblem
 typedef struct {
-    int (*CountNumStates)(const ProblemDataset *dataset);
-    double (*CountPriori)(const ProblemDataset *dataset, const int current_state, const int next_state);
-    bool (*IsStateAvalible)(const ProblemDataset *dataset, const Ant *ant, const int state);
-    double (*CountRouteLength)(const ProblemDataset *dataset, const Ant *ant);
-    void (*AntToSolution_RP)(const ProblemDataset *dataset, const Ant *ant, ProblemSolution *solution);
+    int (*CountNumStates)(const DiscreteProblemDataset *dataset);
+    double (*CountPriori)(const DiscreteProblemDataset *dataset, const int current_state, const int next_state);
+    bool (*IsStateAvalible)(const DiscreteProblemDataset *dataset, const Ant *ant, const int state);
+    double (*CountRouteLength)(const DiscreteProblemDataset *dataset, const Ant *ant);
+    void (*AntToSolution_RP)(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution);
 } TSPAnt;
 
 // constructor
 TSPAnt *NewTSPAnt_MA();
 // methods
-double TSPCountPriori(const ProblemDataset *dataset, const int current_state, const int next_state);
-bool TSPIsStateAvalible(const ProblemDataset *dataset, const Ant *ant, const int state);
-double TSPCountRouteLength(const ProblemDataset *dataset, const Ant *ant);
-void TSPAntToSolution_RP(const ProblemDataset *dataset, const Ant *ant, ProblemSolution *solution);
+double TSPCountPriori(const DiscreteProblemDataset *dataset, const int current_state, const int next_state);
+bool TSPIsStateAvalible(const DiscreteProblemDataset *dataset, const Ant *ant, const int state);
+double TSPCountRouteLength(const DiscreteProblemDataset *dataset, const Ant *ant);
+void TSPAntToSolution_RP(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution);
 
 #endif  // TRAVELING_SALESMAN_H_

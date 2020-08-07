@@ -9,12 +9,14 @@
 #include "optimization_problem.h"
 
 // hill climbing algorithm framework
-// returns best solution in parameter
-void TabuSearch_RP(
+// returns best solution
+DiscreteProblemSolution* TabuSearch_RP(
     // instance of the problem
-    const OptimizationProblem* problem,
+    const DiscreteOptimizationProblem* problem,
     // instance of problem dataset
-    const ProblemDataset* dataset,
+    const DiscreteProblemDataset* dataset,
+    // the initial solution
+    const DiscreteProblemSolution* initial_solution,
     // constraint of max iterations
     const int max_iterations,
     // size of tabu list
@@ -22,9 +24,6 @@ void TabuSearch_RP(
     // file pointer of logging
     // must had already opened a file for writing
     // pass NULL to skip logging
-    FILE* loggings,
-
-    // return here
-    ProblemSolution* best_solution);
+    FILE* loggings);
 
 #endif  // TABU_SEARCH_H_

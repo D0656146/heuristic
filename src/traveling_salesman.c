@@ -11,6 +11,18 @@ TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table) 
     return instance;
 }
 
+// 讀點的檔轉成點表
+double **ReadPointFromFile_MA(FILE *fptr, int *num_points) {
+    int trash;
+    fscanf(fptr, "%d", num_points);
+    double **point_table = malloc(*num_points * sizeof(double *));
+    for (int c = 0; c < *num_points; c++) {
+        point_table[c] = malloc(2 * sizeof(double));
+        fscanf(fptr, "%d %lf %lf", &trash, &(point_table[c][0]), &(point_table[c][1]));
+    }
+    return point_table;
+}
+
 // 讀點的檔轉成鄰接表
 double **PointFileToAdjacencyTable_MA(FILE *fptr) {
     int num_points;
@@ -33,6 +45,14 @@ double **PointFileToAdjacencyTable_MA(FILE *fptr) {
     return adjacency_table;
 }
 
+// 產生畫圖資料檔
+void Draw(double **point_table, DiscreteProblemSolution *solution, FILE *fptr) {
+    for (int c = 0; c < solution->size; c++) {
+        fprintf(fptr, "%f %f\n", *(*(point_table + solution->solution_ar[c] - '0')), *(*(point_table + solution->solution_ar[c] - '0') + 1));
+    }
+    fprintf(fptr, "%f %f\n", *(*(point_table + solution->solution_ar[0] - '0')), *(*(point_table + solution->solution_ar[0] - '0') + 1));
+}
+
 TSP *NewTSP_MA() {
     TSP *instance = malloc(sizeof(TSP));
     instance->InitialSolution_RP = TSPRandomSolution_RP;
@@ -44,7 +64,7 @@ TSP *NewTSP_MA() {
     return instance;
 }
 
-void TSPRandomSolution_RP(const ProblemDataset *dataset, ProblemSolution *solution) {
+void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution) {
     for (int c = 0; c < solution->size; c++) {
         solution->solution_ar[c] = '0' + c;
     }
@@ -58,9 +78,9 @@ void TSPRandomSolution_RP(const ProblemDataset *dataset, ProblemSolution *soluti
 }
 
 void TSPGenerateNeighbors_RP(int index,
-                             const ProblemDataset *dataset,
-                             const ProblemSolution *current_solution,
-                             ProblemSolution *neighbor_solution) {  // 先試兩個換
+                             const DiscreteProblemDataset *dataset,
+                             const DiscreteProblemSolution *current_solution,
+                             DiscreteProblemSolution *neighbor_solution) {  // 先試兩個換
     Default_Clone_RP(current_solution, neighbor_solution);
     int cityA = index / current_solution->size;
     int cityB = index % current_solution->size;
@@ -70,7 +90,7 @@ void TSPGenerateNeighbors_RP(int index,
     neighbor_solution->profit = TSPCountProfit(dataset, neighbor_solution);
 }
 
-double TSPCountProfit(const ProblemDataset *dataset, const ProblemSolution *solution) {
+double TSPCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
     double **adjacency_table = (double **)(dataset->data);
     double length = 0.0;
     for (int c = 1; c < solution->size; c++) {
@@ -82,13 +102,13 @@ double TSPCountProfit(const ProblemDataset *dataset, const ProblemSolution *solu
     return 0.0 - length;
 }
 
-int TSPCountNumNeighbors(const ProblemDataset *dataset, const ProblemSolution *solution) {
+int TSPCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
     return solution->size * solution->size;
 }
 
-bool TSPIsEqual(const ProblemDataset *dataset,
-                const ProblemSolution *solutionA,
-                const ProblemSolution *solutionB) {
+bool TSPIsEqual(const DiscreteProblemDataset *dataset,
+                const DiscreteProblemSolution *solutionA,
+                const DiscreteProblemSolution *solutionB) {
     if (solutionA->size != solutionB->size) {
         return false;
     }
@@ -123,20 +143,20 @@ TSPAnt *NewTSPAnt_MA() {
     return instance;
 }
 
-double TSPCountPriori(const ProblemDataset *dataset, const int current_state, const int next_state) {
+double TSPCountPriori(const DiscreteProblemDataset *dataset, const int current_state, const int next_state) {
     double **adjacency_table = (double **)(dataset->data);
     return 1.0 / *(*(adjacency_table + current_state) + next_state);
 }
 
-bool TSPIsStateAvalible(const ProblemDataset *dataset, const Ant *ant, const int state) {
-    if (ant->steps == dataset->solution_size) {
+bool TSPIsStateAvalible(const DiscreteProblemDataset *dataset, const Ant *ant, const int state) {
+    if (ant->route_steps == dataset->solution_size) {
         if (state == ant->route_ar[0]) {
             return true;
         } else {
             return false;
         }
     }
-    for (int c = 0; c < ant->steps; c++) {
+    for (int c = 0; c < ant->route_steps; c++) {
         if (state == ant->route_ar[c]) {
             return false;
         }
@@ -144,17 +164,17 @@ bool TSPIsStateAvalible(const ProblemDataset *dataset, const Ant *ant, const int
     return true;
 }
 
-double TSPCountRouteLength(const ProblemDataset *dataset, const Ant *ant) {
+double TSPCountRouteLength(const DiscreteProblemDataset *dataset, const Ant *ant) {
     double **adjacency_table = (double **)(dataset->data);
     double length = 0.0;
-    for (int c = 1; c < ant->steps; c++) {
+    for (int c = 1; c < ant->route_steps; c++) {
         length += *(*(adjacency_table + ant->route_ar[c - 1]) + ant->route_ar[c]);
     }
     return length;
 }
 
-void TSPAntToSolution_RP(const ProblemDataset *dataset, const Ant *ant, ProblemSolution *solution) {
-    for (int c = 0; c < ant->steps - 1; c++) {
+void TSPAntToSolution_RP(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution) {
+    for (int c = 0; c < ant->route_steps - 1; c++) {
         solution->solution_ar[c] = ant->route_ar[c] + '0';
     }
 }

@@ -1,46 +1,45 @@
 #include "tabu_search.h"
 
-#include <limits.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
-void TabuSearch_RP(const OptimizationProblem* problem,
-                   const ProblemDataset* dataset,
-                   const int max_iterations,
-                   const int tabu_list_size,
-                   FILE* loggings,
-                   ProblemSolution* best_solution) {
+DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* problem,
+                                       const DiscreteProblemDataset* dataset,
+                                       const DiscreteProblemSolution* initial_solution,
+                                       const int max_iterations,
+                                       const int tabu_list_size,
+                                       FILE* loggings) {
     // initialize
+    DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA(dataset);
+    problem->Clone_RP(initial_solution, best_solution);
+    DiscreteProblemSolution* current_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CU
+    problem->Clone_RP(initial_solution, current_solution);
+    DiscreteProblemSolution* candidate_solution = NewEmptyDiscreteSolution_MA(dataset);       // MA_CA
+    DiscreteProblemSolution* best_candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_BC
     int evaluate_times = 0;
-    ProblemSolution* current_solution = NewEmptySolution_MA(dataset);    // MA_CU
-    ProblemSolution* candidate_solution = NewEmptySolution_MA(dataset);  // MA_CA
-    problem->InitialSolution_RP(dataset, current_solution);
-    problem->Clone_RP(current_solution, best_solution);
     if (loggings) {
-        fprintf(loggings, "%d %f\n", evaluate_times, best_solution->profit);
+        fprintf(loggings, "%d %lf\n", evaluate_times, best_solution->profit);
     }
-    printf("[ts] initialize solution, profit = %f \n", best_solution->profit);
-
+    printf("[ts] initialize solution, profit = %lf \n", best_solution->profit);
     // initialize tabu list
     // 之後用GNU函式庫的資料結構重寫
     int list_tail = 0;
-    ProblemSolution* tabu_list[tabu_list_size];  // MA_TL
+    DiscreteProblemSolution* tabu_list[tabu_list_size];  // MA_TL
     for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {
-        tabu_list[c_tl] = NewEmptySolution_MA(dataset);
+        tabu_list[c_tl] = NewEmptyDiscreteSolution_MA(dataset);
     }
     problem->Clone_RP(current_solution, tabu_list[list_tail]);
     list_tail++;
     if (list_tail == tabu_list_size) {
         list_tail = 0;
     }
+    printf("[ts] initialize tabu list \n");
 
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
+        // reset local best
+        problem->Clone_RP(current_solution, best_candidate_solution);
         // find best neighbor not in tabu list
         int num_neighbors = problem->CountNumNeighbors(dataset, current_solution);
         evaluate_times += num_neighbors;
-        double best_profit = -1 * __DBL_MAX__;
-        int best_index = -1;
         for (int c_nb = 0; c_nb < num_neighbors; c_nb++) {
             problem->GenerateNeighbors_RP(c_nb, dataset,
                                           current_solution,
@@ -50,35 +49,29 @@ void TabuSearch_RP(const OptimizationProblem* problem,
             bool tabued = false;
             for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {
                 if (problem->IsEqual(dataset, candidate_solution, tabu_list[c_tl])) {
-                    //printf("[ts] tabued %d \n", c_tl);
+                    printf("[ts] tabued %d \n", c_tl);
                     tabued = true;
                     break;
                 }
             }
-            if (tabued) {
-                continue;
-            }
-            if (candidate_solution->profit > best_profit) {
-                best_profit = candidate_solution->profit;
-                best_index = c_nb;
+            if (!tabued && candidate_solution->profit > best_candidate_solution->profit) {
+                problem->Clone_RP(candidate_solution, best_candidate_solution);
             }
         }
-        // check if get surrounded
-        if (best_index == -1) {
+        // check if get surrounded and transfer
+        if (problem->IsEqual(dataset, best_candidate_solution, current_solution)) {
             printf("[ts] get surrounded \n");
-            FreeSolution(current_solution);                      // RE_CU
-            FreeSolution(candidate_solution);                    // RE_CA
-            for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {  //RE_TL
-                FreeSolution(tabu_list[c_tl]);
+            FreeDiscreteSolution(current_solution);              // RE_CU
+            FreeDiscreteSolution(candidate_solution);            // RE_CA
+            FreeDiscreteSolution(best_candidate_solution);       // RE_BC
+            for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {  // RE_TL
+                FreeDiscreteSolution(tabu_list[c_tl]);
             }
-            return;
+            return best_solution;
+            ;
         }
-        // transfer
-        problem->GenerateNeighbors_RP(best_index, dataset,
-                                      current_solution,
-                                      candidate_solution);
-        problem->Clone_RP(candidate_solution, current_solution);
-        //printf("[ts] transfer to profit = %f \n", current_solution->profit);
+        problem->Clone_RP(best_candidate_solution, current_solution);
+        printf("[ts] transfer to profit = %lf \n", current_solution->profit);
         // update tabu list
         // 之後用GNU函式庫的資料結構重寫
         problem->Clone_RP(current_solution, tabu_list[list_tail]);
@@ -92,10 +85,15 @@ void TabuSearch_RP(const OptimizationProblem* problem,
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %f\n", evaluate_times, best_solution->profit);
+            fprintf(loggings, "%d %lf\n", evaluate_times, best_solution->profit);
         }
     }
     printf("[ts] reach max iteration \n");
-    FreeSolution(current_solution);    // RE_CU
-    FreeSolution(candidate_solution);  // RE_CA
+    FreeDiscreteSolution(current_solution);              // RE_CU
+    FreeDiscreteSolution(candidate_solution);            // RE_CA
+    FreeDiscreteSolution(best_candidate_solution);       // RE_BC
+    for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {  // RE_TL
+        FreeDiscreteSolution(tabu_list[c_tl]);
+    }
+    return best_solution;
 }

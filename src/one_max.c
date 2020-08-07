@@ -21,7 +21,7 @@ OneMaxProblem* NewOneMaxProblem_MA() {
     return instance;
 }
 
-void OneMaxRandomSolution_RP(const ProblemDataset* dataset, ProblemSolution* solution) {
+void OneMaxRandomSolution_RP(const DiscreteProblemDataset* dataset, DiscreteProblemSolution* solution) {
     for (int c = 0; c < solution->size; c++) {
         if (rand() % 2 == 1) {
             solution->solution_ar[c] = '1';
@@ -33,9 +33,9 @@ void OneMaxRandomSolution_RP(const ProblemDataset* dataset, ProblemSolution* sol
 }
 
 void OneMaxGenerateNeighbors_RP(int index,
-                                const ProblemDataset* dataset,
-                                const ProblemSolution* current_solution,
-                                ProblemSolution* neighbor_solution) {
+                                const DiscreteProblemDataset* dataset,
+                                const DiscreteProblemSolution* current_solution,
+                                DiscreteProblemSolution* neighbor_solution) {
     if (index >= current_solution->size) {
         return;
     }
@@ -48,7 +48,7 @@ void OneMaxGenerateNeighbors_RP(int index,
     neighbor_solution->profit = OneMaxCountProfit(dataset, neighbor_solution);
 }
 
-double OneMaxCountProfit(const ProblemDataset* dataset, const ProblemSolution* solution) {
+double OneMaxCountProfit(const DiscreteProblemDataset* dataset, const DiscreteProblemSolution* solution) {
     int profit = 0;
     for (int c = 0; c < solution->size; c++) {
         if (solution->solution_ar[c] == '1') {
