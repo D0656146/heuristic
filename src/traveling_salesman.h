@@ -15,37 +15,17 @@ typedef struct {
     int solution_size;
     double **adjacency_table;
 } TSPDataset;
+typedef Vector Point;
 
 // constructor
 TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table);
-// 讀點的檔轉成鄰接表
-double **PointFileToAdjacencyTable_MA(FILE *fptr);
-double **ReadPointFromFile_MA(FILE *fptr, int *num_points);
-void Draw(double **point_table, DiscreteProblemSolution *solution, FILE *fptr);
-
-// class of TSP solution
-// extends DiscreteProblemSolution
-typedef struct {
-    char *solution_ar;
-    int size;
-    double profit;
-} TSPSolution;
+Point **ReadPointFromFile_MA_RP(FILE *fptr, int *num_points);
+double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points);
+void SolutionToPointsFile(Point **point_table, DiscreteProblemSolution *solution, FILE *fptr);
 
 // class of TSP
-// extends OptimizationProblem
-typedef struct {
-    void (*InitialSolution_RP)(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
-    void (*GenerateNeighbors_RP)(int index,
-                                 const DiscreteProblemDataset *dataset,
-                                 const DiscreteProblemSolution *current_solution,
-                                 DiscreteProblemSolution *neighbor_solution);
-    double (*CountProfit)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-    int (*CountNumNeighbors)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-    void (*Clone_RP)(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
-    bool (*IsEqual)(const DiscreteProblemDataset *dataset,
-                    const DiscreteProblemSolution *solutionA,
-                    const DiscreteProblemSolution *solutionB);
-} TSP;
+// extends DiscreteOptimizationProblem
+typedef DiscreteOptimizationProblem TSP;
 
 // constructor
 TSP *NewTSP_MA();
@@ -54,22 +34,16 @@ void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblem
 void TSPGenerateNeighbors_RP(int index,
                              const DiscreteProblemDataset *dataset,
                              const DiscreteProblemSolution *current_solution,
-                             DiscreteProblemSolution *neighbor_solution);  // 可能有隨便兩個換和相鄰換兩種
+                             DiscreteProblemSolution *neighbor_solution);
 double TSPCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-int TSPCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);  // 可能有隨便兩個換和相鄰換兩種
+int TSPCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
 bool TSPIsEqual(const DiscreteProblemDataset *dataset,
                 const DiscreteProblemSolution *solutionA,
                 const DiscreteProblemSolution *solutionB);
 
 // TSP for ant colony
 // extends AntColonyProblem
-typedef struct {
-    int (*CountNumStates)(const DiscreteProblemDataset *dataset);
-    double (*CountPriori)(const DiscreteProblemDataset *dataset, const int current_state, const int next_state);
-    bool (*IsStateAvalible)(const DiscreteProblemDataset *dataset, const Ant *ant, const int state);
-    double (*CountRouteLength)(const DiscreteProblemDataset *dataset, const Ant *ant);
-    void (*AntToSolution_RP)(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution);
-} TSPAnt;
+typedef AntColonyProblem TSPAnt;
 
 // constructor
 TSPAnt *NewTSPAnt_MA();

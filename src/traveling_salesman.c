@@ -11,51 +11,50 @@ TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table) 
     return instance;
 }
 
-// 讀點的檔轉成點表
-double **ReadPointFromFile_MA(FILE *fptr, int *num_points) {
-    int trash;
-    fscanf(fptr, "%d", num_points);
-    double **point_table = malloc(*num_points * sizeof(double *));
-    for (int c = 0; c < *num_points; c++) {
-        point_table[c] = malloc(2 * sizeof(double));
-        fscanf(fptr, "%d %lf %lf", &trash, &(point_table[c][0]), &(point_table[c][1]));
+Point **ReadPointFromFile_MA_RP(FILE *fptr, int *num_points) {
+    int dimension;
+    fscanf(fptr, "%d %d", num_points, &dimension);
+    Point **point_table = malloc(*num_points * sizeof(Point *));
+    for (int c_po = 0; c_po < *num_points; c_po++) {
+        point_table[c_po] = NewEmptyVector_MA(dimension);
+        for (int c_dim = 0; c_dim < dimension; c_dim++) {
+            fscanf(fptr, "%lg", &(point_table[c_po]->components_ar[c_dim]));
+        }
     }
     return point_table;
 }
 
-// 讀點的檔轉成鄰接表
-double **PointFileToAdjacencyTable_MA(FILE *fptr) {
-    int num_points;
-    int trash;
-    fscanf(fptr, "%d", &num_points);
-    double points[num_points][2];
-    for (int c = 0; c < num_points; c++) {
-        fscanf(fptr, "%d %lf %lf", &trash, &(points[c][0]), &(points[c][1]));
-    }
+double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points) {
+    int dimension = point_table[0]->dimension;
     double **adjacency_table = malloc(num_points * sizeof(double *));
     for (int c1 = 0; c1 < num_points; c1++) {
         adjacency_table[c1] = malloc(num_points * sizeof(double));
         for (int c2 = 0; c2 < num_points; c2++) {
-            adjacency_table[c1][c2] = sqrt(pow(points[c1][0] - points[c2][0], 2) +
-                                           pow(points[c1][1] - points[c2][1], 2));
-            //printf("%2.0f ", adjacency_table[c1][c2]);
+            double sum = 0.0;
+            for (int c_dim = 0; c_dim < dimension; c_dim++) {
+                sum += pow(point_table[c1]->components_ar[c_dim] - point_table[c2]->components_ar[c_dim], 2);
+            }
+            adjacency_table[c1][c2] = sqrt(sum);
         }
-        //printf("\n");
     }
     return adjacency_table;
 }
 
-// 產生畫圖資料檔
-void Draw(double **point_table, DiscreteProblemSolution *solution, FILE *fptr) {
+void SolutionToPointsFile(Point **point_table, DiscreteProblemSolution *solution, FILE *fptr) {
+    int dimension = point_table[0]->dimension;
     for (int c = 0; c < solution->size; c++) {
-        fprintf(fptr, "%f %f\n", *(*(point_table + solution->solution_ar[c] - '0')), *(*(point_table + solution->solution_ar[c] - '0') + 1));
+        for (int c_dim = 0; c_dim < dimension; c_dim++) {
+            fprintf(fptr, "%g ", point_table[solution->solution_ar[c]]->components_ar[c_dim]);
+        }
+        fprintf(fptr, "\n");
     }
-    fprintf(fptr, "%f %f\n", *(*(point_table + solution->solution_ar[0] - '0')), *(*(point_table + solution->solution_ar[0] - '0') + 1));
+    for (int c_dim = 0; c_dim < dimension; c_dim++) {
+        fprintf(fptr, "%g ", point_table[solution->solution_ar[0]]->components_ar[c_dim]);
+    }
 }
 
 TSP *NewTSP_MA() {
     TSP *instance = malloc(sizeof(TSP));
-    instance->InitialSolution_RP = TSPRandomSolution_RP;
     instance->GenerateNeighbors_RP = TSPGenerateNeighbors_RP;
     instance->CountProfit = TSPCountProfit;
     instance->CountNumNeighbors = TSPCountNumNeighbors;
@@ -66,11 +65,11 @@ TSP *NewTSP_MA() {
 
 void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution) {
     for (int c = 0; c < solution->size; c++) {
-        solution->solution_ar[c] = '0' + c;
+        solution->solution_ar[c] = 0;
     }
     for (int c = 0; c < solution->size; c++) {
         int rand_point = rand() % solution->size;
-        char temp = solution->solution_ar[c];
+        int temp = solution->solution_ar[c];
         solution->solution_ar[c] = solution->solution_ar[rand_point];
         solution->solution_ar[rand_point] = temp;
     }
@@ -80,11 +79,11 @@ void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblem
 void TSPGenerateNeighbors_RP(int index,
                              const DiscreteProblemDataset *dataset,
                              const DiscreteProblemSolution *current_solution,
-                             DiscreteProblemSolution *neighbor_solution) {  // 先試兩個換
+                             DiscreteProblemSolution *neighbor_solution) {
     Default_Clone_RP(current_solution, neighbor_solution);
     int cityA = index / current_solution->size;
     int cityB = index % current_solution->size;
-    char temp = neighbor_solution->solution_ar[cityA];
+    int temp = neighbor_solution->solution_ar[cityA];
     neighbor_solution->solution_ar[cityA] = neighbor_solution->solution_ar[cityB];
     neighbor_solution->solution_ar[cityB] = temp;
     neighbor_solution->profit = TSPCountProfit(dataset, neighbor_solution);
@@ -94,11 +93,9 @@ double TSPCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProbl
     double **adjacency_table = (double **)(dataset->data);
     double length = 0.0;
     for (int c = 1; c < solution->size; c++) {
-        length += *(*(adjacency_table + solution->solution_ar[c - 1] - '0') + solution->solution_ar[c] - '0');
-        //printf("%c", solution->solution_ar[c - 1]);
+        length += *(*(adjacency_table + solution->solution_ar[c - 1]) + solution->solution_ar[c]);
     }
-    //printf("%c\n", solution->solution_ar[solution->size - 1]);
-    length += *(*(adjacency_table + solution->solution_ar[0] - '0') + solution->solution_ar[solution->size - 1] - '0');
+    length += *(*(adjacency_table + solution->solution_ar[0]) + solution->solution_ar[solution->size - 1]);
     return 0.0 - length;
 }
 
@@ -175,6 +172,6 @@ double TSPCountRouteLength(const DiscreteProblemDataset *dataset, const Ant *ant
 
 void TSPAntToSolution_RP(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution) {
     for (int c = 0; c < ant->route_steps - 1; c++) {
-        solution->solution_ar[c] = ant->route_ar[c] + '0';
+        solution->solution_ar[c] = ant->route_ar[c];
     }
 }

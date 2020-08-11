@@ -73,7 +73,7 @@ DiscreteProblemSolution* AntColony_RP(const AntColonyProblem* problem,
                 printf("[aco] go to %d \n", ants[c_ant]->route_ar[c_step]);
             }
             ants[c_ant]->route_length = problem->CountRouteLength(dataset, ants[c_ant]);
-            printf("[aco] route length = %lf \n", ants[c_ant]->route_length);
+            printf("[aco] route length = %g \n", ants[c_ant]->route_length);
             // update local best
             if (ants[c_ant]->route_length < local_best_ant->route_length) {
                 CloneAnt_RP(ants[c_ant], local_best_ant);
@@ -102,7 +102,7 @@ DiscreteProblemSolution* AntColony_RP(const AntColonyProblem* problem,
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %lf\n", (c_iter + 1) * num_ants, global_best_ant->route_length);
+            fprintf(loggings, "%d %g\n", (c_iter + 1) * num_ants, global_best_ant->route_length);
         }
     }
     problem->AntToSolution_RP(dataset, global_best_ant, best_solution);

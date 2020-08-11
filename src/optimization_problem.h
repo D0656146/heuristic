@@ -7,13 +7,13 @@
 
 #include <stdbool.h>
 
-// abstract class of problem dataset
+// abstract class of discrete problem dataset
 typedef struct {
     int solution_size;
     void *data;
 } DiscreteProblemDataset;
 
-// abstract class of problem solution
+// class of discrete problem solution
 typedef struct {
     // encode solutions to int arrays
     int *solution_ar;
@@ -21,13 +21,13 @@ typedef struct {
     double profit;
 } DiscreteProblemSolution;
 
-// default constructor of DiscreteProblemSolution
+// constructor of DiscreteProblemSolution
 DiscreteProblemSolution *NewEmptyDiscreteSolution_MA(const DiscreteProblemDataset *dataset);
-// default destructor of DiscreteProblemSolution
+// destructor of DiscreteProblemSolution
 void FreeDiscreteSolution(DiscreteProblemSolution *solution);
 
-// abstract class of optimization problem
-// when generate a new solution, you must count its profit
+// class of discrete optimization problem
+// you must count profit of solution in generate function
 typedef struct {
     // method to generate a neighbor solution from a solution
     // index start from 0
@@ -54,5 +54,24 @@ void Default_Clone_RP(const DiscreteProblemSolution *origin, DiscreteProblemSolu
 bool Default_IsEqual(const DiscreteProblemDataset *dataset,
                      const DiscreteProblemSolution *solutionA,
                      const DiscreteProblemSolution *solutionB);
+
+// class of a vector
+// use as continuous problem solution
+typedef struct {
+    // encode solutions to int arrays
+    double *components_ar;
+    int dimension;
+    double value;
+} Vector;
+
+// constructor of Vector
+Vector *NewEmptyVector_MA(const int dimension);
+// destructor of Vector
+void FreeVector(Vector *vector);
+// method to clone
+void CloneVector_RP(const Vector *origin, Vector *copy);
+
+// set a vector randomly in a bounded area
+void RandomVector_RP(const double bounds[][2], Vector *vector);
 
 #endif  // OPTIMIZATION_PROBLEM_H_

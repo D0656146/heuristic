@@ -21,11 +21,11 @@ DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem
     problem->Clone_RP(initial_solution, current_solution);
     DiscreteProblemSolution* candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CA
     if (loggings) {
-        fprintf(loggings, "0 %lf\n", best_solution->profit);
+        fprintf(loggings, "0 %g\n", best_solution->profit);
     }
-    printf("[sa] initialize solution, profit = %lf \n", best_solution->profit);
+    printf("[sa] initialize solution, profit = %g \n", best_solution->profit);
     double current_temperature = initial_temperature;
-    printf("[sa] initial temperature = %lf \n", current_temperature);
+    printf("[sa] initial temperature = %g \n", current_temperature);
 
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // find random neighbor
@@ -37,12 +37,12 @@ DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem
         // determination
         if (Determination(current_solution->profit, candidate_solution->profit, current_temperature)) {
             problem->Clone_RP(candidate_solution, current_solution);
-            printf("[sa] accept, transfer to profit = %lf \n", current_solution->profit);
+            printf("[sa] accept, transfer to profit = %g \n", current_solution->profit);
             // another annealing strategy
             /*
             if (current_solution->profit > candidate_solution->profit) {
                 current_temperature = Anneal(current_temperature);
-                printf("[sa] anneal to temperature = %lf \n", current_temperature);
+                printf("[sa] anneal to temperature = %g \n", current_temperature);
             }
             */
         } else {
@@ -54,11 +54,11 @@ DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %lf\n", c_iter + 1, best_solution->profit);
+            fprintf(loggings, "%d %g\n", c_iter + 1, best_solution->profit);
         }
         // anneal
         current_temperature = Anneal(current_temperature);
-        printf("[sa] anneal to temperature = %lf \n", current_temperature);
+        printf("[sa] anneal to temperature = %g \n", current_temperature);
         if (current_temperature < min_temperature) {
             printf("[sa] reach min temperature \n");
             FreeDiscreteSolution(current_solution);    // RE_CU

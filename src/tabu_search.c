@@ -17,9 +17,9 @@ DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* proble
     DiscreteProblemSolution* best_candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_BC
     int evaluate_times = 0;
     if (loggings) {
-        fprintf(loggings, "%d %lf\n", evaluate_times, best_solution->profit);
+        fprintf(loggings, "%d %g\n", evaluate_times, best_solution->profit);
     }
-    printf("[ts] initialize solution, profit = %lf \n", best_solution->profit);
+    printf("[ts] initialize solution, profit = %g \n", best_solution->profit);
     // initialize tabu list
     // 之後用GNU函式庫的資料結構重寫
     int list_tail = 0;
@@ -71,7 +71,7 @@ DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* proble
             ;
         }
         problem->Clone_RP(best_candidate_solution, current_solution);
-        printf("[ts] transfer to profit = %lf \n", current_solution->profit);
+        printf("[ts] transfer to profit = %g \n", current_solution->profit);
         // update tabu list
         // 之後用GNU函式庫的資料結構重寫
         problem->Clone_RP(current_solution, tabu_list[list_tail]);
@@ -85,7 +85,7 @@ DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* proble
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %lf\n", evaluate_times, best_solution->profit);
+            fprintf(loggings, "%d %g\n", evaluate_times, best_solution->profit);
         }
     }
     printf("[ts] reach max iteration \n");

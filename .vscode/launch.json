@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}\\..\\dist\\${fileBasenameNoExtension}.exe",
-            "args": ["5", "4000", "2.0", "2.0", "0.02"],
+            "args": ["30", "30", "300", "30", "0.5", "de.dat"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}\\..",
             "environment": [],

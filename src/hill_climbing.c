@@ -12,9 +12,9 @@ DiscreteProblemSolution* HillClimbing_MA(const DiscreteOptimizationProblem* prob
     DiscreteProblemSolution* best_candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_BC
     int evaluation_times = 0;
     if (loggings) {
-        fprintf(loggings, "%d %lf\n", evaluation_times, best_solution->profit);
+        fprintf(loggings, "%d %g\n", evaluation_times, best_solution->profit);
     }
-    printf("[hc] initialize solution, profit = %lf \n", best_solution->profit);
+    printf("[hc] initialize solution, profit = %g \n", best_solution->profit);
 
     for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
         // find best neighbor
@@ -31,7 +31,7 @@ DiscreteProblemSolution* HillClimbing_MA(const DiscreteOptimizationProblem* prob
         // climb or break
         if (best_candidate_solution->profit > best_solution->profit) {
             problem->Clone_RP(best_candidate_solution, best_solution);
-            printf("[hc] climbing to profit = %lf \n", best_solution->profit);
+            printf("[hc] climbing to profit = %g \n", best_solution->profit);
         } else {
             printf("[hc] reach local optimization \n");
             FreeDiscreteSolution(candidate_solution);       // RE_CA
@@ -40,7 +40,7 @@ DiscreteProblemSolution* HillClimbing_MA(const DiscreteOptimizationProblem* prob
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %lf\n", evaluation_times, best_solution->profit);
+            fprintf(loggings, "%d %g\n", evaluation_times, best_solution->profit);
         }
     }
     printf("[hc] reach max iteration \n");

@@ -40,3 +40,30 @@ bool Default_IsEqual(const DiscreteProblemDataset *dataset,
     }
     return true;
 }
+
+Vector *NewEmptyVector_MA(const int dimension) {
+    Vector *instance = malloc(sizeof(Vector));
+    instance->dimension = dimension;
+    instance->value = -1 * __DBL_MAX__;
+    instance->components_ar = malloc(dimension * sizeof(double));
+    return instance;
+}
+
+void FreeVector(Vector *vector) {
+    free(vector->components_ar);
+    free(vector);
+}
+
+void CloneVector_RP(const Vector *origin, Vector *copy) {
+    for (int c = 0; c < origin->dimension; c++) {
+        copy->components_ar[c] = origin->components_ar[c];
+    }
+    copy->dimension = origin->dimension;
+    copy->value = origin->value;
+}
+
+void RandomVector_RP(const double bounds[][2], Vector *vector) {
+    for (int c = 0; c < vector->dimension; c++) {
+        vector->components_ar[c] = (bounds[c][1] - bounds[c][0]) * (double)rand() / RAND_MAX + bounds[c][0];
+    }
+}

@@ -9,7 +9,7 @@
 #include "optimization_problem.h"
 
 // hill climbing algorithm framework
-// returns best solution in parameter
+// returns best solution
 DiscreteProblemSolution* HillClimbing_MA(
     // instance of the problem
     const DiscreteOptimizationProblem* problem,
