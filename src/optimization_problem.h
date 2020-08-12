@@ -41,6 +41,7 @@ typedef struct {
     int (*CountNumNeighbors)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
     // method to clone a solution
     void (*Clone_RP)(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
+    // method to determine if two solutions are same
     bool (*IsEqual)(const DiscreteProblemDataset *dataset,
                     const DiscreteProblemSolution *solutionA,
                     const DiscreteProblemSolution *solutionB);
