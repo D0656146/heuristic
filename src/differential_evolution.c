@@ -45,7 +45,7 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction)(const Vector* solut
             }
             if (out_of_bounds) {
                 printf("[de] out of bounds %d \n", c_pop);
-                mutants[c_pop]->value = -1 * __DBL_MAX__;
+                mutants[c_pop]->value = 0.0 - __DBL_MAX__;
             } else {
                 mutants[c_pop]->value = ObjectiveFunction(mutants[c_pop]);
             }

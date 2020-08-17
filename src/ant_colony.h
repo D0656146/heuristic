@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "heuristic_utils.h"
 #include "optimization_problem.h"
 
 // class of ant
@@ -17,12 +18,12 @@ typedef struct {
     double route_length;
 } Ant;
 
-// default constructor of Ant
+// constructor
 // route_steps = solution_length + 1 for tsp
 Ant* NewEmptyAnt_MA(const DiscreteProblemDataset* dataset);
-// default destructor of Ant
+// destructor
 void FreeAnt(Ant* ant);
-// default clone method of Ant
+// clone function
 void CloneAnt_RP(const Ant* origin, Ant* copy);
 
 // abstract class of problem to be solve with ACO
@@ -37,7 +38,7 @@ typedef struct {
     double (*CountRouteLength)(const DiscreteProblemDataset* dataset, const Ant* ant);
     // method to translate a route to a solution
     void (*AntToSolution_RP)(const DiscreteProblemDataset* dataset, const Ant* ant, DiscreteProblemSolution* solution);
-} AntColonyProblem;  // 之後是否轉移到OP.h那邊(偏向不要) 確定不要之後刪除註釋
+} AntColonyProblem;
 
 // default function to count number of states
 int Default_CountNumStates(const DiscreteProblemDataset* dataset);
@@ -65,9 +66,5 @@ DiscreteProblemSolution* AntColony_RP(
     // must had already opened a file for writing
     // pass NULL to skip logging
     FILE* loggings);
-
-// roulette method to choose route
-// 之後移到基因那邊去
-int RouletteWheels(const double* weights, const int num_candidate_state);
 
 #endif  // ANT_COLONY_H_

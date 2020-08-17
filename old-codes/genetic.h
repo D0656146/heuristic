@@ -11,7 +11,7 @@
 // returns NULL if initial temperature > 0 注視需修改
 void* Genetic(
     // problem dataset instance
-    const void* problem_dataset,
+    const DiscreteOptimizationProblem* problem,
     // function to generate random initial solution
     // will call multiple time to generate initial population
     void* (*Initialize)(const void* problem_dataset),

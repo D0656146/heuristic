@@ -9,6 +9,9 @@
 #include "genetic.h"
 #include "optimization_problem.h"
 
+// assign the function pointer in main or won't work
+double (*ClusteringObjectiveFunction)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
+
 // class of clustering data
 typedef struct {
     int num_clusters;
@@ -60,11 +63,10 @@ void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, Discret
 void CountBounds_RP(const ClusteringDataset *dataset, double bounds[][2]);
 
 // k-means
-Vector **KMeans(const ClusteringDataset *dataset);
+Vector **KMeans_MA(const ClusteringDataset *dataset);
 
 // objective functions and a function pointer default using SSE for choosing
 double SumOfSquareError(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-
-double (*ClusteringObjectiveFunction)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) = SumOfSquareError;
+// double SumOfSquareError(const DiscreteProblemDataset *dataset, Vector **means);
 
 #endif  // CLUSTERING_H_

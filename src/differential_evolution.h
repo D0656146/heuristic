@@ -16,7 +16,6 @@ Vector* DifferentialEvolution_MA(
     // the dimension of problem
     const int dimension,
     // the upper and lower bounds of solution space
-    // 不知道能不能這樣寫 不行的話就double(*bounds)[2]
     const double bounds[][2],
     // constraint of max iterations
     const int max_iterations,

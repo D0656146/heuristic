@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}\\..\\dist\\${fileBasenameNoExtension}.exe",
-            "args": ["30", "30", "300", "30", "0.5", "de.dat"],
+            "args": ["3", "40", "100", "1.0", "1.0", "cluster.dat"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}\\..",
             "environment": [],

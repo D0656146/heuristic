@@ -12,16 +12,28 @@
 // abstract class of problem to be solve with GA
 typedef struct {
     // method to generate child solutions from parent solution
-    void (*Crossover_DA)(DiscreteProblemSolution* solutionA, DiscreteProblemSolution* solutionB);
+    void (*Crossover_DA)(const DiscreteProblemDataset* dataset,
+                         DiscreteProblemSolution* solution1,
+                         DiscreteProblemSolution* solution2);
     // method to mutate a solution
-    void (*Mutation_DA)(DiscreteProblemSolution* solution, const double mutation_rate);
+    void (*Mutation_DA)(const DiscreteProblemDataset* dataset,
+                        DiscreteProblemSolution* solution,
+                        const double mutation_rate);
+    // method to count profit of a solution
+    double (*CountProfit)(const DiscreteProblemDataset* dataset, const DiscreteProblemSolution* solution);
     // method to clone a solution
     void (*Clone_RP)(const DiscreteProblemSolution* origin, DiscreteProblemSolution* copy);
     // method to determine if two solutions are same
     bool (*IsEqual)(const DiscreteProblemDataset* dataset,
-                    const DiscreteProblemSolution* solutionA,
-                    const DiscreteProblemSolution* solutionB);
-} GeneticProblem;  // 之後是否轉移到OP.h那邊(偏向不要) 確定不要之後刪除註釋
+                    const DiscreteProblemSolution* solution1,
+                    const DiscreteProblemSolution* solution2);
+} GeneticProblem;
+
+// 實作一些crossover
+void UniformCrossover_DA(const DiscreteProblemDataset* dataset,
+                         DiscreteProblemSolution* solution1,
+                         DiscreteProblemSolution* solution2);
+// 實作一些mutation
 
 // genetic algorithm framework
 // returns best solution
@@ -31,7 +43,7 @@ DiscreteProblemSolution* Genetic(
     // instance of problem dataset
     const DiscreteProblemDataset* dataset,
     // initial population
-    const DiscreteProblemSolution** initial_population,
+    DiscreteProblemSolution** initial_population,
     // population size must be even
     const int population_size,
     // crossover rate
@@ -46,7 +58,5 @@ DiscreteProblemSolution* Genetic(
     // must had already opened a file for writing
     // pass NULL to skip logging
     FILE* loggings);
-
-int Tournament(const double* weights, const int num_candidates);
 
 #endif  // GENETIC_H_

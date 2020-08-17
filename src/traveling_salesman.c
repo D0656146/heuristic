@@ -11,19 +11,6 @@ TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table) 
     return instance;
 }
 
-Point **ReadPointFromFile_MA_RP(FILE *fptr, int *num_points) {
-    int dimension;
-    fscanf(fptr, "%d %d", num_points, &dimension);
-    Point **point_table = malloc(*num_points * sizeof(Point *));
-    for (int c_po = 0; c_po < *num_points; c_po++) {
-        point_table[c_po] = NewEmptyVector_MA(dimension);
-        for (int c_dim = 0; c_dim < dimension; c_dim++) {
-            fscanf(fptr, "%lg", &(point_table[c_po]->components_ar[c_dim]));
-        }
-    }
-    return point_table;
-}
-
 double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points) {
     int dimension = point_table[0]->dimension;
     double **adjacency_table = malloc(num_points * sizeof(double *));
@@ -40,7 +27,7 @@ double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points) {
     return adjacency_table;
 }
 
-void SolutionToPointsFile(Point **point_table, DiscreteProblemSolution *solution, FILE *fptr) {
+void SolutionToPointsFile(Point **point_table, const DiscreteProblemSolution *solution, FILE *fptr) {
     int dimension = point_table[0]->dimension;
     for (int c = 0; c < solution->size; c++) {
         for (int c_dim = 0; c_dim < dimension; c_dim++) {
@@ -65,7 +52,7 @@ TSP *NewTSP_MA() {
 
 void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution) {
     for (int c = 0; c < solution->size; c++) {
-        solution->solution_ar[c] = 0;
+        solution->solution_ar[c] = c;
     }
     for (int c = 0; c < solution->size; c++) {
         int rand_point = rand() % solution->size;

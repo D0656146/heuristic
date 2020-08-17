@@ -21,9 +21,9 @@ typedef struct {
     double profit;
 } DiscreteProblemSolution;
 
-// constructor of DiscreteProblemSolution
+// constructor
 DiscreteProblemSolution *NewEmptyDiscreteSolution_MA(const DiscreteProblemDataset *dataset);
-// destructor of DiscreteProblemSolution
+// destructor
 void FreeDiscreteSolution(DiscreteProblemSolution *solution);
 
 // class of discrete optimization problem
@@ -53,8 +53,8 @@ int Default_CountNumNeighbors(const DiscreteProblemDataset *dataset, const Discr
 void Default_Clone_RP(const DiscreteProblemSolution *origin, DiscreteProblemSolution *copy);
 // default compare method
 bool Default_IsEqual(const DiscreteProblemDataset *dataset,
-                     const DiscreteProblemSolution *solutionA,
-                     const DiscreteProblemSolution *solutionB);
+                     const DiscreteProblemSolution *solution1,
+                     const DiscreteProblemSolution *solution2);
 
 // class of a vector
 // use as continuous problem solution
@@ -64,6 +64,7 @@ typedef struct {
     int dimension;
     double value;
 } Vector;
+typedef Vector Point;
 
 // constructor of Vector
 Vector *NewEmptyVector_MA(const int dimension);
@@ -71,6 +72,8 @@ Vector *NewEmptyVector_MA(const int dimension);
 void FreeVector(Vector *vector);
 // method to clone
 void CloneVector_RP(const Vector *origin, Vector *copy);
+// method to compare two vector
+bool IsVectorEquals(const Vector *vector1, const Vector *vector2);
 
 // set a vector randomly in a bounded area
 void RandomVector_RP(const double bounds[][2], Vector *vector);

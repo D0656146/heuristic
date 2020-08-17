@@ -136,19 +136,3 @@ void CloneAnt_RP(const Ant* origin, Ant* copy) {
 int Default_CountNumStates(const DiscreteProblemDataset* dataset) {
     return dataset->solution_size;
 }
-
-// 移到基因 或UTIL 甚麼的
-int RouletteWheels(const double* weights, const int num_candidate_state) {
-    double sum_weight = 0.0;
-    for (int c = 0; c < num_candidate_state; c++) {
-        sum_weight += weights[c];
-    }
-    double rand_weight = (double)rand() / RAND_MAX * sum_weight;
-    for (int c = 0; c < num_candidate_state; c++) {
-        rand_weight -= weights[c];
-        if (rand_weight <= 0) {
-            return c;
-        }
-    }
-    return num_candidate_state - 1;
-}

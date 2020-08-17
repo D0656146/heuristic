@@ -15,13 +15,11 @@ typedef struct {
     int solution_size;
     double **adjacency_table;
 } TSPDataset;
-typedef Vector Point;
 
 // constructor
 TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table);
-Point **ReadPointFromFile_MA_RP(FILE *fptr, int *num_points);
 double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points);
-void SolutionToPointsFile(Point **point_table, DiscreteProblemSolution *solution, FILE *fptr);
+void SolutionToPointsFile(Point **point_table, const DiscreteProblemSolution *solution, FILE *fptr);
 
 // class of TSP
 // extends DiscreteOptimizationProblem
