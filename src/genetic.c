@@ -29,18 +29,25 @@ DiscreteProblemSolution* Genetic(const GeneticProblem* problem,
     printf("[ga] initialize \n");
 
     for (int c_gen = 1; c_gen < max_generations; c_gen++) {
+        /*// print
+        for (int c_pop = 0; c_pop < population_size; c_pop++) {
+            for (int c_pt = 0; c_pt < best_solution->size; c_pt++) {
+                printf("%d", population[c_pop]->solution_ar[c_pt]);
+            }
+            printf("\n");
+        }*/
         // crossover
         for (int c_pop = 0; c_pop < population_size; c_pop += 2) {
             if ((double)rand() / RAND_MAX < crossover_rate) {
                 problem->Crossover_DA(dataset, population[c_pop], population[c_pop + 1]);
-                printf("[ga] crossover %d %d \n", c_pop, c_pop + 1);
+                // printf("[ga] crossover %d %d \n", c_pop, c_pop + 1);
             }
         }
         // mutation
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
             problem->Mutation_DA(dataset, population[c_pop], mutation_rate);
         }
-        printf("[ga] mutation \n");
+        // printf("[ga] mutation \n");
         // selection
         double weight[population_size];
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
@@ -50,7 +57,7 @@ DiscreteProblemSolution* Genetic(const GeneticProblem* problem,
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
             int chosen = Selection(weight, population_size);
             problem->Clone_RP(population[chosen], next_population[c_pop]);
-            printf("[ga] select %d \n", chosen);
+            // printf("[ga] select %d \n", chosen);
         }
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
             problem->Clone_RP(next_population[c_pop], population[c_pop]);

@@ -51,7 +51,7 @@ bool ClusteringIsEqual(const DiscreteProblemDataset *dataset,
 typedef GeneticProblem GeneticClustering;
 
 // constructor
-GeneticClustering *NewGeneticClustering();
+GeneticClustering *NewGeneticClustering_MA();
 // methods
 void ClusteringMutation_DA(const DiscreteProblemDataset *dataset,
                            DiscreteProblemSolution *solution,
@@ -63,7 +63,7 @@ void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, Discret
 void CountBounds_RP(const ClusteringDataset *dataset, double bounds[][2]);
 
 // k-means
-Vector **KMeans_MA(const ClusteringDataset *dataset);
+Vector **KMeans_MA(const ClusteringDataset *dataset, Vector **initial_means);
 
 // objective functions and a function pointer default using SSE for choosing
 double SumOfSquareError(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);

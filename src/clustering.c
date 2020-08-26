@@ -47,6 +47,7 @@ void ClusteringGenerateNeighbors_RP(int index,
         cluster++;
     }
     neighbor_solution->solution_ar[point] = cluster;
+    neighbor_solution->profit = ClusteringObjectiveFunction((DiscreteProblemDataset *)dataset, neighbor_solution);
 }
 
 int ClusteringCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
@@ -54,7 +55,7 @@ int ClusteringCountNumNeighbors(const DiscreteProblemDataset *dataset, const Dis
     return solution->size * (num_clusters - 1);
 }
 
-GeneticClustering *NewGeneticClustering() {
+GeneticClustering *NewGeneticClustering_MA() {
     GeneticClustering *instance = malloc(sizeof(GeneticClustering));
     instance->CountProfit = ClusteringObjectiveFunction;
     instance->Clone_RP = Default_Clone_RP;
@@ -107,7 +108,7 @@ void CountMeans_RP(const ClusteringDataset *dataset, const DiscreteProblemSoluti
 void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, DiscreteProblemSolution *solution) {
     int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
     int dimension = dataset->data->point_table[0]->dimension;
-    for (int c_pt = 71; c_pt < solution->size; c_pt++) {
+    for (int c_pt = 0; c_pt < solution->size; c_pt++) {
         int nearest_mean = 0;
         double min_distance = __DBL_MAX__;
         for (int c_m = 0; c_m < num_clusters; c_m++) {
@@ -125,7 +126,6 @@ void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, Discret
         }
         solution->solution_ar[c_pt] = nearest_mean;
     }
-    // 是否計算PROFIT，偏向不要
 }
 
 void CountBounds_RP(const ClusteringDataset *dataset, double bounds[][2]) {
@@ -147,20 +147,18 @@ void CountBounds_RP(const ClusteringDataset *dataset, double bounds[][2]) {
     }
 }
 
-Vector **KMeans_MA(const ClusteringDataset *dataset) {
+Vector **KMeans_MA(const ClusteringDataset *dataset, Vector **initial_means) {
     DiscreteProblemDataset *casted_dataset = (DiscreteProblemDataset *)dataset;
     DiscreteProblemSolution *solution = NewEmptyDiscreteSolution_MA(casted_dataset);       // MA_SO
     DiscreteProblemSolution *next_solution = NewEmptyDiscreteSolution_MA(casted_dataset);  // MA_NS
     int dimension = dataset->data->point_table[0]->dimension;
-    double bounds[dimension][2];
-    CountBounds_RP(dataset, bounds);
     int num_clusters = dataset->data->num_clusters;
     Vector **means = malloc(num_clusters * sizeof(Vector *));
-    Vector **next_means = malloc(num_clusters * sizeof(Vector *));
+    Vector **next_means = malloc(num_clusters * sizeof(Vector *));  // MA_NM
     for (int c = 0; c < num_clusters; c++) {
         means[c] = NewEmptyVector_MA(dimension);
         next_means[c] = NewEmptyVector_MA(dimension);
-        RandomVector_RP(bounds, next_means[c]);
+        CloneVector_RP(initial_means[c], next_means[c]);
     }
     CountClusterID_RP(dataset, next_means, next_solution);
     while (!Default_IsEqual(casted_dataset, solution, next_solution)) {
@@ -172,11 +170,12 @@ Vector **KMeans_MA(const ClusteringDataset *dataset) {
         CountClusterID_RP(dataset, next_means, next_solution);
     }
     for (int c = 0; c < num_clusters; c++) {
+        CloneVector_RP(next_means[c], means[c]);
         FreeVector(next_means[c]);
     }
-    free(next_means);
-    FreeDiscreteSolution(solution);
-    FreeDiscreteSolution(next_solution);
+    free(next_means);                     // RE_NM
+    FreeDiscreteSolution(solution);       // RE_SO
+    FreeDiscreteSolution(next_solution);  // RE_NS
     return means;
 }
 

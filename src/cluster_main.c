@@ -3,10 +3,13 @@
 #include <time.h>
 
 #include "clustering.h"
+#include "clustering_quick.h"
 #include "genetic.h"
 #include "heuristic_utils.h"
+#include "hill_climbing.h"
 #include "optimization_problem.h"
 #include "simulated_annealing.h"
+#include "tabu_search.h"
 
 int main(int argc, char* argv[]) {
     srand(time(NULL));
@@ -22,7 +25,8 @@ int main(int argc, char* argv[]) {
 
     ClusteringObjectiveFunction = SumOfSquareError;
     Point** point_table = ReadPointFromFile_MA_RP(data_fptr, &num_point);
-    GeneticClustering* problem = NewGeneticClustering();
+    GeneticClustering* problem = NewGeneticClustering_MA();
+    ClusteringProblem* problem_a = NewClusteringProblem_MA();
     ClusteringDataset* dataset = NewClusteringDataset_MA(num_point, point_table, num_clusters);
 
     DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA((DiscreteProblemDataset*)dataset);
@@ -31,10 +35,34 @@ int main(int argc, char* argv[]) {
         initial_solutions[c] = NewEmptyDiscreteSolution_MA((DiscreteProblemDataset*)dataset);
         ClusteringRandomSolution_RP((DiscreteProblemDataset*)dataset, initial_solutions[c]);
     }
-    Vector** means = KMeans_MA(dataset);
+
+    Vector** initial_means = malloc(num_clusters * sizeof(Vector*));
+    double bounds[dataset->data->point_table[0]->dimension][2];
+    CountBounds_RP(dataset, bounds);
+    for (int c = 0; c < num_clusters; c++) {
+        initial_means[c] = NewEmptyVector_MA(dataset->data->point_table[0]->dimension);
+        RandomVector_RP(bounds, initial_means[c]);
+        for (int c_dim = 0; c_dim < dataset->data->point_table[0]->dimension; c_dim++) {
+            printf("%f ", initial_means[c]->components_ar[c_dim]);
+        }
+        printf("\n");
+    }
+    Vector** means = KMeansQuick_MA(dataset, initial_means, 10);
     CountClusterID_RP(dataset, means, best_solution);
     best_solution->profit = ClusteringObjectiveFunction((DiscreteProblemDataset*)dataset, best_solution);
+    printf("%g\n", best_solution->profit);
+    for (int c = 0; c < best_solution->size; c++) {
+        printf("%d ", best_solution->solution_ar[c]);
+    }
+    printf("\n");
+    for (int c = 0; c < num_clusters; c++) {
+        for (int c_dim = 0; c_dim < dataset->data->point_table[0]->dimension; c_dim++) {
+            printf("%f ", means[c]->components_ar[c_dim]);
+        }
+        printf("\n");
+    }
 
+    /*
     best_solution = Genetic((GeneticProblem*)problem,
                             (DiscreteProblemDataset*)dataset,
                             initial_solutions,
@@ -44,6 +72,17 @@ int main(int argc, char* argv[]) {
                             max_iterations,
                             Tournament,
                             loggings);
+
+    best_solution = TabuSearch_RP((DiscreteOptimizationProblem*)problem_a,
+                                  (DiscreteProblemDataset*)dataset,
+                                  initial_solutions[0],
+                                  1000000,
+                                  1000,
+                                  NULL);
+
+    // int pop[150] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    // best_solution->solution_ar = pop;
+    // printf("%g\n", ClusteringObjectiveFunction((DiscreteProblemDataset*)dataset, best_solution));
 
     CountMeans_RP(dataset, best_solution, means);
     printf("%g\n", best_solution->profit);
@@ -57,5 +96,6 @@ int main(int argc, char* argv[]) {
         printf("%d ", best_solution->solution_ar[c]);
     }
     printf("\n");
+    */
     return 0;
 }
