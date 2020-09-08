@@ -3,9 +3,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem* problem,
+Solution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem* problem,
                                                const DiscreteProblemDataset* dataset,
-                                               const DiscreteProblemSolution* initial_solution,
+                                               const Solution* initial_solution,
                                                const double initial_temperature,
                                                const double min_temperature,
                                                const int max_iterations,
@@ -15,11 +15,11 @@ DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem
                                                double (*Anneal)(double current_temperature),
                                                FILE* loggings) {
     // initialize
-    DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA(dataset);
+    Solution* best_solution = NewEmptySolution_MA(dataset);
     problem->Clone_RP(initial_solution, best_solution);
-    DiscreteProblemSolution* current_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CU
+    Solution* current_solution = NewEmptySolution_MA(dataset);  // MA_CU
     problem->Clone_RP(initial_solution, current_solution);
-    DiscreteProblemSolution* candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CA
+    Solution* candidate_solution = NewEmptySolution_MA(dataset);  // MA_CA
     if (loggings) {
         fprintf(loggings, "0 %g\n", best_solution->profit);
     }
@@ -61,14 +61,14 @@ DiscreteProblemSolution* SimulatedAnnealing_RP(const DiscreteOptimizationProblem
         printf("[sa] anneal to temperature = %g \n", current_temperature);
         if (current_temperature < min_temperature) {
             printf("[sa] reach min temperature \n");
-            FreeDiscreteSolution(current_solution);    // RE_CU
-            FreeDiscreteSolution(candidate_solution);  // RE_CA
+            FreeSolution(current_solution);    // RE_CU
+            FreeSolution(candidate_solution);  // RE_CA
             return best_solution;
         }
     }
     printf("[sa] reach max iteration \n");
-    FreeDiscreteSolution(current_solution);    // RE_CU
-    FreeDiscreteSolution(candidate_solution);  // RE_CA
+    FreeSolution(current_solution);    // RE_CU
+    FreeSolution(candidate_solution);  // RE_CA
     return best_solution;
 }
 

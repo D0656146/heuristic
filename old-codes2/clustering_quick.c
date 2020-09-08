@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 void CountClusterIDQuick_RP(const ClusteringDataset *dataset, Vector **means,
-                            DiscreteProblemSolution *solution,
-                            const DiscreteProblemSolution *quick_record) {
+                            Solution *solution,
+                            const Solution *quick_record) {
     int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
     int dimension = dataset->data->point_table[0]->dimension;
     for (int c_pt = 0; c_pt < solution->size; c_pt++) {
@@ -33,9 +33,9 @@ void CountClusterIDQuick_RP(const ClusteringDataset *dataset, Vector **means,
 
 Vector **KMeansQuick_MA(const ClusteringDataset *dataset, Vector **initial_means, const int repeat_time) {
     DiscreteProblemDataset *casted_dataset = (DiscreteProblemDataset *)dataset;
-    DiscreteProblemSolution *solution = NewEmptyDiscreteSolution_MA(casted_dataset);       // MA_SO
-    DiscreteProblemSolution *next_solution = NewEmptyDiscreteSolution_MA(casted_dataset);  // MA_NS
-    DiscreteProblemSolution *quick_record = NewEmptyDiscreteSolution_MA(casted_dataset);   // MA_QR
+    Solution *solution = NewEmptySolution_MA(casted_dataset);       // MA_SO
+    Solution *next_solution = NewEmptySolution_MA(casted_dataset);  // MA_NS
+    Solution *quick_record = NewEmptySolution_MA(casted_dataset);   // MA_QR
     for (int c = 0; c < dataset->solution_size; c++) {
         quick_record->solution_ar[c] = -1;
     }
@@ -74,7 +74,7 @@ Vector **KMeansQuick_MA(const ClusteringDataset *dataset, Vector **initial_means
         FreeVector(next_means[c]);
     }
     free(next_means);                     // RE_NM
-    FreeDiscreteSolution(solution);       // RE_SO
-    FreeDiscreteSolution(next_solution);  // RE_NS
+    FreeSolution(solution);       // RE_SO
+    FreeSolution(next_solution);  // RE_NS
     return means;
 }

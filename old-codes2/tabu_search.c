@@ -2,19 +2,19 @@
 
 #include <stdbool.h>
 
-DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* problem,
+Solution* TabuSearch_RP(const DiscreteProblem* problem,
                                        const DiscreteProblemDataset* dataset,
-                                       const DiscreteProblemSolution* initial_solution,
+                                       const Solution* initial_solution,
                                        const int max_iterations,
                                        const int tabu_list_size,
                                        FILE* loggings) {
     // initialize
-    DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA(dataset);
+    Solution* best_solution = NewEmptySolution_MA(dataset);
     problem->Clone_RP(initial_solution, best_solution);
-    DiscreteProblemSolution* current_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_CU
+    Solution* current_solution = NewEmptySolution_MA(dataset);  // MA_CU
     problem->Clone_RP(initial_solution, current_solution);
-    DiscreteProblemSolution* candidate_solution = NewEmptyDiscreteSolution_MA(dataset);       // MA_CA
-    DiscreteProblemSolution* best_candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_BC
+    Solution* candidate_solution = NewEmptySolution_MA(dataset);       // MA_CA
+    Solution* best_candidate_solution = NewEmptySolution_MA(dataset);  // MA_BC
     int evaluate_times = 0;
     if (loggings) {
         fprintf(loggings, "%d %g\n", evaluate_times, best_solution->profit);
@@ -23,9 +23,9 @@ DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* proble
     // initialize tabu list
     // 之後用GNU函式庫的資料結構重寫
     int list_tail = 0;
-    DiscreteProblemSolution* tabu_list[tabu_list_size];  // MA_TL
+    Solution* tabu_list[tabu_list_size];  // MA_TL
     for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {
-        tabu_list[c_tl] = NewEmptyDiscreteSolution_MA(dataset);
+        tabu_list[c_tl] = NewEmptySolution_MA(dataset);
     }
     problem->Clone_RP(current_solution, tabu_list[list_tail]);
     list_tail++;
@@ -61,11 +61,11 @@ DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* proble
         // check if get surrounded and transfer
         if (problem->IsEqual(dataset, best_candidate_solution, current_solution)) {
             printf("[ts] get surrounded \n");
-            FreeDiscreteSolution(current_solution);              // RE_CU
-            FreeDiscreteSolution(candidate_solution);            // RE_CA
-            FreeDiscreteSolution(best_candidate_solution);       // RE_BC
+            FreeSolution(current_solution);              // RE_CU
+            FreeSolution(candidate_solution);            // RE_CA
+            FreeSolution(best_candidate_solution);       // RE_BC
             for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {  // RE_TL
-                FreeDiscreteSolution(tabu_list[c_tl]);
+                FreeSolution(tabu_list[c_tl]);
             }
             return best_solution;
             ;
@@ -89,11 +89,11 @@ DiscreteProblemSolution* TabuSearch_RP(const DiscreteOptimizationProblem* proble
         }
     }
     printf("[ts] reach max iteration \n");
-    FreeDiscreteSolution(current_solution);              // RE_CU
-    FreeDiscreteSolution(candidate_solution);            // RE_CA
-    FreeDiscreteSolution(best_candidate_solution);       // RE_BC
+    FreeSolution(current_solution);              // RE_CU
+    FreeSolution(candidate_solution);            // RE_CA
+    FreeSolution(best_candidate_solution);       // RE_BC
     for (int c_tl = 0; c_tl < tabu_list_size; c_tl++) {  // RE_TL
-        FreeDiscreteSolution(tabu_list[c_tl]);
+        FreeSolution(tabu_list[c_tl]);
     }
     return best_solution;
 }

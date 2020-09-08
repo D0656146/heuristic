@@ -4,47 +4,33 @@
 #ifndef GENETIC_H_
 #define GENETIC_H_
 
-#include <stdbool.h>
 #include <stdio.h>
 
-#include "optimization_problem.h"
+#include "problem_solution.h"
 
 // abstract class of problem to be solve with GA
 typedef struct {
-    // method to generate child solutions from parent solution
-    void (*Crossover_DA)(const DiscreteProblemDataset* dataset,
-                         DiscreteProblemSolution* solution1,
-                         DiscreteProblemSolution* solution2);
+    // method to generate child solutions from parent solutions
+    void (*Crossover_DA)(const void* dataset, Solution* solution1, Solution* solution2);
     // method to mutate a solution
-    void (*Mutation_DA)(const DiscreteProblemDataset* dataset,
-                        DiscreteProblemSolution* solution,
-                        const double mutation_rate);
-    // method to count profit of a solution
-    double (*CountProfit)(const DiscreteProblemDataset* dataset, const DiscreteProblemSolution* solution);
-    // method to clone a solution
-    void (*Clone_RP)(const DiscreteProblemSolution* origin, DiscreteProblemSolution* copy);
-    // method to determine if two solutions are same
-    bool (*IsEqual)(const DiscreteProblemDataset* dataset,
-                    const DiscreteProblemSolution* solution1,
-                    const DiscreteProblemSolution* solution2);
+    void (*Mutation_DA)(const void* dataset, Solution* solution, const double mutation_rate);
+    // evaluation function
+    double (*Evaluation_DA)(const void* dataset, Solution* solution);
 } GeneticProblem;
 
-// 實作一些crossover
-void UniformCrossover_DA(const DiscreteProblemDataset* dataset,
-                         DiscreteProblemSolution* solution1,
-                         DiscreteProblemSolution* solution2);
-// 實作一些mutation
+// some crossover methods
+void UniformCrossover_DA(const void* dataset, Solution* solution1, Solution* solution2);
+// some mutation methods
 
 // genetic algorithm framework
-// returns best solution
-DiscreteProblemSolution* Genetic(
+Solution* Genetic_MA(
     // instance of the problem
     const GeneticProblem* problem,
-    // instance of problem dataset
-    const DiscreteProblemDataset* dataset,
+    // problem dataset
+    const void* dataset,
     // initial population
-    DiscreteProblemSolution** initial_population,
-    // population size must be even
+    Solution** initial_population,
+    // population size, must be even
     const int population_size,
     // crossover rate
     const double crossover_rate,

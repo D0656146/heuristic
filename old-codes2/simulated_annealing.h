@@ -11,13 +11,13 @@
 
 // simulated annealing algorithm framework
 // returns best solution
-DiscreteProblemSolution* SimulatedAnnealing_RP(
+Solution* SimulatedAnnealing_RP(
     // instance of the problem
-    const DiscreteOptimizationProblem* problem,
+    const DiscreteProblem* problem,
     // instance of problem dataset
     const DiscreteProblemDataset* dataset,
     // the initial solution
-    const DiscreteProblemSolution* initial_solution,
+    const Solution* initial_solution,
     // initial temperature
     const double initial_temperature,
     // the constraint of minimum temperature

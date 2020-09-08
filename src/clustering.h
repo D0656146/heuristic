@@ -4,69 +4,49 @@
 #ifndef CLUSTERING_H_
 #define CLUSTERING_H_
 
-#include <stdbool.h>
-
 #include "genetic.h"
-#include "optimization_problem.h"
-
-// assign the function pointer in main or won't work
-double (*ClusteringObjectiveFunction)(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-
-// class of clustering data
-typedef struct {
-    int num_clusters;
-    Point **point_table;
-} ClusteringData;
+#include "heuristic_utils.h"
+#include "local_search.h"
+#include "problem_solution.h"
 
 // class of clustering dataset
-// extends DiscreteProblemDataset
 typedef struct {
-    int solution_size;
-    ClusteringData *data;
+    int num_points;
+    int dimension;
+    int num_clusters;
+    Vector **point_table;
 } ClusteringDataset;
-typedef Vector Point;
 
 // constructor
-ClusteringDataset *NewClusteringDataset_MA(const int solution_size, Point **point_table, const int num_clusters);
-// destructor, note that point_table isn't recycled
-void FreeClusteringDataset(ClusteringDataset *dataset);
+ClusteringDataset *NewClusteringDataset_MA(const int num_points,
+                                           const int dimension,
+                                           const int num_clusters,
+                                           Vector **point_table);
 
-// class of discrete version clustering aka cluster ID
-// extends DiscreteOptimizationProblem
-typedef DiscreteOptimizationProblem ClusteringProblem;
-
-// constructor
-ClusteringProblem *NewClusteringProblem_MA();
-// methods
-void ClusteringRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
-void ClusteringGenerateNeighbors_RP(int index,
-                                    const DiscreteProblemDataset *dataset,
-                                    const DiscreteProblemSolution *current_solution,
-                                    DiscreteProblemSolution *neighbor_solution);
-int ClusteringCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-bool ClusteringIsEqual(const DiscreteProblemDataset *dataset,
-                       const DiscreteProblemSolution *solutionA,
-                       const DiscreteProblemSolution *solutionB);
-
-typedef GeneticProblem GeneticClustering;
-
-// constructor
-GeneticClustering *NewGeneticClustering_MA();
-// methods
-void ClusteringMutation_DA(const DiscreteProblemDataset *dataset,
-                           DiscreteProblemSolution *solution,
-                           const double mutation_rate);
-
-// functions for continuous version
-void CountMeans_RP(const ClusteringDataset *dataset, const DiscreteProblemSolution *solution, Vector **means);
-void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, DiscreteProblemSolution *solution);
-void CountBounds_RP(const ClusteringDataset *dataset, double bounds[][2]);
+// evaluation functions
+double SumOfSquareError_DA(const void *dataset, Solution *solution, Vector *means);
+double SumOfSquareErrorDiscrete_DA(const void *dataset, Solution *solution);
+double SumOfSquareErrorContinuous_DA(const void *dataset, Vector *means);
 
 // k-means
-Vector **KMeans_MA(const ClusteringDataset *dataset, Vector **initial_means);
+Vector *KMeans_MA(const ClusteringDataset *dataset, const Vector *initial_means);
+void CountMeans_RP(const ClusteringDataset *dataset, const Solution *solution, Vector *means);
+void CountClusterID_RP(const ClusteringDataset *dataset, const Vector *means, Solution *solution);
 
-// objective functions and a function pointer default using SSE for choosing
-double SumOfSquareError(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-// double SumOfSquareError(const DiscreteProblemDataset *dataset, Vector **means);
+// constructor for local search
+LocalSearchProblem *NewLocalSearchClustering_MA();
+// methods
+void ClusteringRandomSolution_RP(const ClusteringDataset *dataset, Solution *solution);
+int ClusteringCountNumNeighbors(const void *dataset, const Solution *solution);
+void ClusteringGenerateNeighbors_RP(int index,
+                                    const void *dataset,
+                                    const Solution *current_solution,
+                                    Solution *neighbor_solution);
+bool ClusteringIsEqual(const void *dataset, const Solution *solution1, const Solution *solution2);
+
+// constructor for genetic algorithm
+GeneticProblem *NewGeneticClustering_MA();
+// methods
+void ClusteringMutation_DA(const void *dataset, Solution *solution, const double mutation_rate);
 
 #endif  // CLUSTERING_H_

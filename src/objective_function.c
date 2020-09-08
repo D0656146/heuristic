@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-double Ackley(const Vector* vector) {
+double Ackley(const void* dataset, const Vector* vector) {
     const double a = 20.0, b = 0.2, c = 2.0 * M_PI;
     double sum = 0.0;
     for (int c_dim = 0; c_dim < vector->dimension; c_dim++) {

@@ -1,15 +1,15 @@
 #include "hill_climbing.h"
 
-DiscreteProblemSolution* HillClimbing_MA(const DiscreteOptimizationProblem* problem,
+Solution* HillClimbing_MA(const DiscreteProblem* problem,
                                  const DiscreteProblemDataset* dataset,
-                                 const DiscreteProblemSolution* initial_solution,
+                                 const Solution* initial_solution,
                                  const int max_iterations,
                                  FILE* loggings) {
     // initialize
-    DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA(dataset);
+    Solution* best_solution = NewEmptySolution_MA(dataset);
     problem->Clone_RP(initial_solution, best_solution);
-    DiscreteProblemSolution* candidate_solution = NewEmptyDiscreteSolution_MA(dataset);       // MA_CA
-    DiscreteProblemSolution* best_candidate_solution = NewEmptyDiscreteSolution_MA(dataset);  // MA_BC
+    Solution* candidate_solution = NewEmptySolution_MA(dataset);       // MA_CA
+    Solution* best_candidate_solution = NewEmptySolution_MA(dataset);  // MA_BC
     int evaluation_times = 0;
     if (loggings) {
         fprintf(loggings, "%d %g\n", evaluation_times, best_solution->profit);
@@ -34,8 +34,8 @@ DiscreteProblemSolution* HillClimbing_MA(const DiscreteOptimizationProblem* prob
             printf("[hc] climbing to profit = %g \n", best_solution->profit);
         } else {
             printf("[hc] reach local optimization \n");
-            FreeDiscreteSolution(candidate_solution);       // RE_CA
-            FreeDiscreteSolution(best_candidate_solution);  // RE_BC
+            FreeSolution(candidate_solution);       // RE_CA
+            FreeSolution(best_candidate_solution);  // RE_BC
             return best_solution;
         }
         // logging
@@ -44,7 +44,7 @@ DiscreteProblemSolution* HillClimbing_MA(const DiscreteOptimizationProblem* prob
         }
     }
     printf("[hc] reach max iteration \n");
-    FreeDiscreteSolution(candidate_solution);       // RE_CA
-    FreeDiscreteSolution(best_candidate_solution);  // RE_BC
+    FreeSolution(candidate_solution);       // RE_CA
+    FreeSolution(best_candidate_solution);  // RE_BC
     return best_solution;
 }

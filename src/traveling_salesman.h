@@ -4,51 +4,52 @@
 #ifndef TRAVELING_SALESMAN_H_
 #define TRAVELING_SALESMAN_H_
 
-#include <stdbool.h>
-
 #include "ant_colony.h"
-#include "optimization_problem.h"
+#include "genetic.h"
+#include "heuristic_utils.h"
+#include "local_search.h"
+#include "problem_solution.h"
 
 // class of TSP dataset
-// extends DiscreteProblemDataset
 typedef struct {
-    int solution_size;
+    int num_city;
     double **adjacency_table;
 } TSPDataset;
 
-// constructor
-TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table);
-double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points);
-void SolutionToPointsFile(Point **point_table, const DiscreteProblemSolution *solution, FILE *fptr);
+// constructor and some utilities
+TSPDataset *NewTSPDataset_MA(const int num_city, double **adjacency_table);
+double **PointTableToAdjacencyTable_MA(Vector **point_table, int num_points);
+void FreeAdjacencyTable(double **adjacency_table, const int num_city);
+void SolutionToPointsFile(Vector **point_table, const Solution *solution, FILE *fptr);
+void TwoOpt_DA(int city1, int city2, Solution *solution);
 
-// class of TSP
-// extends DiscreteOptimizationProblem
-typedef DiscreteOptimizationProblem TSP;
+// evaluation function
+double TSPRouteLength_DA(const void *dataset, Solution *solution);
 
-// constructor
-TSP *NewTSP_MA();
+// constructor for local search
+LocalSearchProblem *NewLocalSearchTSP_MA();
 // methods
-void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution);
+void TSPRandomSolution_RP(const TSPDataset *dataset, Solution *solution);
+int TSPCountNumNeighbors(const void *dataset, const Solution *solution);
 void TSPGenerateNeighbors_RP(int index,
-                             const DiscreteProblemDataset *dataset,
-                             const DiscreteProblemSolution *current_solution,
-                             DiscreteProblemSolution *neighbor_solution);
-double TSPCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-int TSPCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution);
-bool TSPIsEqual(const DiscreteProblemDataset *dataset,
-                const DiscreteProblemSolution *solutionA,
-                const DiscreteProblemSolution *solutionB);
+                             const void *dataset,
+                             const Solution *current_solution,
+                             Solution *neighbor_solution);
+bool TSPIsEqual(const void *dataset, const Solution *solution1, const Solution *solution2);
 
-// TSP for ant colony
-// extends AntColonyProblem
-typedef AntColonyProblem TSPAnt;
-
-// constructor
-TSPAnt *NewTSPAnt_MA();
+// 以後寫
+// constructor for genetic algorithm
+GeneticProblem *NewGeneticTSP_MA();
 // methods
-double TSPCountPriori(const DiscreteProblemDataset *dataset, const int current_state, const int next_state);
-bool TSPIsStateAvalible(const DiscreteProblemDataset *dataset, const Ant *ant, const int state);
-double TSPCountRouteLength(const DiscreteProblemDataset *dataset, const Ant *ant);
-void TSPAntToSolution_RP(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution);
+void TSPCrossover_DA(const void *dataset, Solution *solution1, Solution *solution2);
+void TSPMutation_DA(const void *dataset, Solution *solution, const double mutation_rate);
+
+// constructor for ant colony system
+AntColonyProblem *NewAntTSP_MA();
+// methods
+int TSPCountNumStates(const void *dataset);
+double TSPCountPriori(const void *dataset, const int current_state, const int next_state);
+bool TSPIsStateAvalible(const void *dataset, const Ant *ant, const int state);
+void TSPAntToSolution_DA(const void *dataset, Ant *ant);
 
 #endif  // TRAVELING_SALESMAN_H_

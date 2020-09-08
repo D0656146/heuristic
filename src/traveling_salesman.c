@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-TSPDataset *NewTSPDataset_MA(const int solution_size, double **adjacency_table) {
+TSPDataset *NewTSPDataset_MA(const int num_city, double **adjacency_table) {
     TSPDataset *instance = malloc(sizeof(TSPDataset));
-    instance->solution_size = solution_size;
+    instance->num_city = num_city;
     instance->adjacency_table = adjacency_table;
     return instance;
 }
 
-double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points) {
+double **PointTableToAdjacencyTable_MA(Vector **point_table, int num_points) {
     int dimension = point_table[0]->dimension;
     double **adjacency_table = malloc(num_points * sizeof(double *));
     for (int c1 = 0; c1 < num_points; c1++) {
@@ -27,7 +27,14 @@ double **PointTableToAdjacencyTable_MA(Point **point_table, int num_points) {
     return adjacency_table;
 }
 
-void SolutionToPointsFile(Point **point_table, const DiscreteProblemSolution *solution, FILE *fptr) {
+void FreeAdjacencyTable(double **adjacency_table, const int num_city) {
+    for (int c_city = 0; c_city < num_city; c_city++) {
+        free(adjacency_table[c_city]);
+    }
+    free(adjacency_table);
+}
+
+void SolutionToPointsFile(Vector **point_table, const Solution *solution, FILE *fptr) {
     int dimension = point_table[0]->dimension;
     for (int c = 0; c < solution->size; c++) {
         for (int c_dim = 0; c_dim < dimension; c_dim++) {
@@ -40,125 +47,139 @@ void SolutionToPointsFile(Point **point_table, const DiscreteProblemSolution *so
     }
 }
 
-TSP *NewTSP_MA() {
-    TSP *instance = malloc(sizeof(TSP));
-    instance->GenerateNeighbors_RP = TSPGenerateNeighbors_RP;
-    instance->CountProfit = TSPCountProfit;
-    instance->CountNumNeighbors = TSPCountNumNeighbors;
-    instance->Clone_RP = Default_Clone_RP;
-    instance->IsEqual = TSPIsEqual;
-    return instance;
-}
-
-void TSPRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution) {
-    for (int c = 0; c < solution->size; c++) {
-        solution->solution_ar[c] = c;
+void TwoOpt_DA(int city1, int city2, Solution *solution) {
+    if (city1 > city2) {
+        int swap = city1;
+        city1 = city2;
+        city2 = swap;
     }
-    for (int c = 0; c < solution->size; c++) {
-        int rand_point = rand() % solution->size;
-        int temp = solution->solution_ar[c];
-        solution->solution_ar[c] = solution->solution_ar[rand_point];
-        solution->solution_ar[rand_point] = temp;
+    for (int c = 0; c < (city2 - city1 + 1) / 2; c++) {
+        int swap = solution->solution_ar[city1 + c];
+        solution->solution_ar[city1 + c] = solution->solution_ar[city2 - c];
+        solution->solution_ar[city2 - c] = swap;
     }
-    solution->profit = TSPCountProfit(dataset, solution);
 }
 
-void TSPGenerateNeighbors_RP(int index,
-                             const DiscreteProblemDataset *dataset,
-                             const DiscreteProblemSolution *current_solution,
-                             DiscreteProblemSolution *neighbor_solution) {
-    Default_Clone_RP(current_solution, neighbor_solution);
-    int cityA = index / current_solution->size;
-    int cityB = index % current_solution->size;
-    int temp = neighbor_solution->solution_ar[cityA];
-    neighbor_solution->solution_ar[cityA] = neighbor_solution->solution_ar[cityB];
-    neighbor_solution->solution_ar[cityB] = temp;
-    neighbor_solution->profit = TSPCountProfit(dataset, neighbor_solution);
-}
-
-double TSPCountProfit(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
-    double **adjacency_table = (double **)(dataset->data);
+double TSPRouteLength_DA(const void *dataset, Solution *solution) {
+    double **adjacency_table = ((TSPDataset *)dataset)->adjacency_table;
     double length = 0.0;
     for (int c = 1; c < solution->size; c++) {
         length += *(*(adjacency_table + solution->solution_ar[c - 1]) + solution->solution_ar[c]);
     }
     length += *(*(adjacency_table + solution->solution_ar[0]) + solution->solution_ar[solution->size - 1]);
-    return 0.0 - length;
+    solution->profit = 0.0 - length;
+    return solution->profit;
 }
 
-int TSPCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
-    return solution->size * solution->size;
+LocalSearchProblem *NewLocalSearchTSP_MA() {
+    LocalSearchProblem *instance = malloc(sizeof(LocalSearchProblem));
+    instance->CountNumNeighbors = TSPCountNumNeighbors;
+    instance->GenerateNeighbors_RP = TSPGenerateNeighbors_RP;
+    instance->IsSolutionEqual = TSPIsEqual;
+    return instance;
 }
 
-bool TSPIsEqual(const DiscreteProblemDataset *dataset,
-                const DiscreteProblemSolution *solutionA,
-                const DiscreteProblemSolution *solutionB) {
-    if (solutionA->size != solutionB->size) {
-        return false;
+void TSPRandomSolution_RP(const TSPDataset *dataset, Solution *solution) {
+    for (int c = 0; c < solution->size; c++) {
+        solution->solution_ar[c] = -1;
     }
+    for (int c_city = 0; c_city < dataset->num_city; c_city++) {
+        int target = rand() % dataset->num_city;
+        while (solution->solution_ar[target] == -1) {
+            target++;
+            if (target == dataset->num_city) {
+                target = 0;
+            }
+        }
+        solution->solution_ar[target] = c_city;
+    }
+    TSPRouteLength_DA(dataset, solution);
+}
+
+int TSPCountNumNeighbors(const void *dataset, const Solution *solution) {
+    return ((TSPDataset *)dataset)->num_city * (((TSPDataset *)dataset)->num_city - 1);
+}
+
+void TSPGenerateNeighbors_RP(int index,
+                             const void *dataset,
+                             const Solution *current_solution,
+                             Solution *neighbor_solution) {
+    CloneSolution_RP(current_solution, neighbor_solution);
+    int city1 = index / (((TSPDataset *)dataset)->num_city - 1);
+    int city2 = index % (((TSPDataset *)dataset)->num_city - 1);
+    if (city2 >= city1) {
+        city2++;
+    }
+    TwoOpt_DA(city1, city2, neighbor_solution);
+    TSPRouteLength_DA(dataset, neighbor_solution);
+}
+
+bool TSPIsEqual(const void *dataset, const Solution *solution1, const Solution *solution2) {
     int start_ptr = -1;
-    for (int c = 0; c < solutionA->size; c++) {
-        if (solutionA->solution_ar[0] == solutionB->solution_ar[c]) {
-            start_ptr = c;
+    for (int c_city = 0; c_city < ((TSPDataset *)dataset)->num_city; c_city++) {
+        if (solution1->solution_ar[0] == solution2->solution_ar[c_city]) {
+            start_ptr = c_city;
             break;
         }
     }
     if (start_ptr == -1) {
         return false;
     }
-    for (int c = 0; c < solutionA->size; c++) {
-        if (start_ptr + c >= solutionA->size) {
-            start_ptr -= solutionA->size;
+    for (int c_city = 0; c_city < ((TSPDataset *)dataset)->num_city; c_city++) {
+        if (start_ptr + c_city >= ((TSPDataset *)dataset)->num_city) {
+            start_ptr -= ((TSPDataset *)dataset)->num_city;
         }
-        if (solutionA->solution_ar[c] != solutionB->solution_ar[start_ptr + c]) {
+        if (solution1->solution_ar[c_city] != solution2->solution_ar[start_ptr + c_city]) {
             return false;
         }
     }
     return true;
 }
 
-TSPAnt *NewTSPAnt_MA() {
-    TSPAnt *instance = malloc(sizeof(TSPAnt));
-    instance->CountNumStates = Default_CountNumStates;
+// 以後寫
+// constructor for genetic algorithm
+GeneticProblem *NewGeneticTSP_MA();
+// methods
+void TSPCrossover_DA(const void *dataset, Solution *solution1, Solution *solution2);
+void TSPMutation_DA(const void *dataset, Solution *solution, const double mutation_rate);
+
+AntColonyProblem *NewAntTSP_MA() {
+    AntColonyProblem *instance = malloc(sizeof(AntColonyProblem));
+    instance->CountNumStates = TSPCountNumStates;
     instance->CountPriori = TSPCountPriori;
     instance->IsStateAvalible = TSPIsStateAvalible;
-    instance->CountRouteLength = TSPCountRouteLength;
-    instance->AntToSolution_RP = TSPAntToSolution_RP;
+    instance->AntToSolution_DA = TSPAntToSolution_DA;
     return instance;
 }
 
-double TSPCountPriori(const DiscreteProblemDataset *dataset, const int current_state, const int next_state) {
-    double **adjacency_table = (double **)(dataset->data);
+int TSPCountNumStates(const void *dataset) {
+    return ((TSPDataset *)dataset)->num_city;
+}
+
+double TSPCountPriori(const void *dataset, const int current_state, const int next_state) {
+    double **adjacency_table = ((TSPDataset *)dataset)->adjacency_table;
     return 1.0 / *(*(adjacency_table + current_state) + next_state);
 }
 
-bool TSPIsStateAvalible(const DiscreteProblemDataset *dataset, const Ant *ant, const int state) {
-    if (ant->route_steps == dataset->solution_size) {
+bool TSPIsStateAvalible(const void *dataset, const Ant *ant, const int state) {
+    if (ant->route_steps == ((TSPDataset *)dataset)->num_city) {
         if (state == ant->route_ar[0]) {
             return true;
         } else {
             return false;
         }
     }
-    for (int c = 0; c < ant->route_steps; c++) {
-        if (state == ant->route_ar[c]) {
+    for (int c_step = 0; c_step < ant->route_steps; c_step++) {
+        if (state == ant->route_ar[c_step]) {
             return false;
         }
     }
     return true;
 }
 
-double TSPCountRouteLength(const DiscreteProblemDataset *dataset, const Ant *ant) {
-    double **adjacency_table = (double **)(dataset->data);
-    double length = 0.0;
-    for (int c = 1; c < ant->route_steps; c++) {
-        length += *(*(adjacency_table + ant->route_ar[c - 1]) + ant->route_ar[c]);
+void TSPAntToSolution_DA(const void *dataset, Ant *ant) {
+    for (int c_step = 0; c_step < ant->route_steps - 1; c_step++) {
+        ant->solution->solution_ar[c_step] = ant->route_ar[c_step];
     }
-    return length;
-}
-
-void TSPAntToSolution_RP(const DiscreteProblemDataset *dataset, const Ant *ant, DiscreteProblemSolution *solution) {
-    for (int c = 0; c < ant->route_steps - 1; c++) {
-        solution->solution_ar[c] = ant->route_ar[c];
-    }
+    TSPRouteLength_DA(dataset, ant->solution);
 }

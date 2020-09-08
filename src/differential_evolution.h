@@ -6,21 +6,21 @@
 
 #include <stdio.h>
 
-#include "optimization_problem.h"
+#include "problem_solution.h"
 
 // differential evolution algorithm framework
 // returns best solution
 Vector* DifferentialEvolution_MA(
     // the objective function
-    double (*ObjectiveFunction)(const Vector* solution),
-    // the dimension of problem
-    const int dimension,
-    // the upper and lower bounds of solution space
-    const double bounds[][2],
-    // constraint of max iterations
-    const int max_iterations,
+    double (*ObjectiveFunction_DA)(const void* dataset, Vector* vector),
+    // problem dataset
+    const void* dataset,
+    // initial population
+    Vector** initial_population,
     // population size
     const int population_size,
+    // constraint of max generations
+    const int max_generations,
     // crossover rate
     const double crossover_rate,
     // mutation function
@@ -33,7 +33,7 @@ Vector* DifferentialEvolution_MA(
     // pass NULL to skip logging
     FILE* loggings);
 
-// a method for mutation
+// some methods for mutation
 void Mutation1(
     Vector** population,
     const int population_size,

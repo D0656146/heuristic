@@ -24,15 +24,15 @@ int main(int argc, char* argv[]) {
     FILE* data_fptr = fopen("iris.dat", "r");
 
     ClusteringObjectiveFunction = SumOfSquareError;
-    Point** point_table = ReadPointFromFile_MA_RP(data_fptr, &num_point);
+    Point** point_table = ReadPointsFromFile_MA_RP(data_fptr, &num_point);
     GeneticClustering* problem = NewGeneticClustering_MA();
     ClusteringProblem* problem_a = NewClusteringProblem_MA();
     ClusteringDataset* dataset = NewClusteringDataset_MA(num_point, point_table, num_clusters);
 
-    DiscreteProblemSolution* best_solution = NewEmptyDiscreteSolution_MA((DiscreteProblemDataset*)dataset);
-    DiscreteProblemSolution** initial_solutions = malloc(population_size * sizeof(DiscreteProblemSolution*));
+    Solution* best_solution = NewEmptySolution_MA((DiscreteProblemDataset*)dataset);
+    Solution** initial_solutions = malloc(population_size * sizeof(Solution*));
     for (int c = 0; c < population_size; c++) {
-        initial_solutions[c] = NewEmptyDiscreteSolution_MA((DiscreteProblemDataset*)dataset);
+        initial_solutions[c] = NewEmptySolution_MA((DiscreteProblemDataset*)dataset);
         ClusteringRandomSolution_RP((DiscreteProblemDataset*)dataset, initial_solutions[c]);
     }
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
                             Tournament,
                             loggings);
 
-    best_solution = TabuSearch_RP((DiscreteOptimizationProblem*)problem_a,
+    best_solution = TabuSearch_RP((DiscreteProblem*)problem_a,
                                   (DiscreteProblemDataset*)dataset,
                                   initial_solutions[0],
                                   1000000,

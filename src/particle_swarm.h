@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 
-#include "optimization_problem.h"
+#include "problem_solution.h"
 
 // class particle
 typedef struct {
@@ -21,19 +21,18 @@ Particle* NewEmptyParticle_MA(const int dimension);
 void FreeParticle(Particle* particle);
 
 // particle swarm optimization framework
-// returns best solution
 Vector* ParticleSwarm_MA(
     // the objective function
-    double (*ObjectiveFunction)(const Vector* solution),
-    // the dimension of problem
-    const int dimension,
-    // the upper and lower bounds of solution space
-    const double bounds[][2],
-    // constraint of max iterations
-    const int max_iterations,
-    // population size
+    double (*ObjectiveFunction_DA)(const void* dataset, Vector* vector),
+    // problem dataset
+    const void* dataset,
+    // initial population
+    Vector** initial_population,
+    // population size, must be even
     const int population_size,
-    // max speed weight
+    // constraint of max generations
+    const int max_generations,
+    // max speed of particle
     const double max_velocity,
     // inertia weight
     const double inertia_weight,

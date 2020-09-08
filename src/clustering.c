@@ -2,125 +2,111 @@
 
 #include <stdlib.h>
 
-ClusteringDataset *NewClusteringDataset_MA(const int solution_size, Point **point_table, const int num_clusters) {
+ClusteringDataset *NewClusteringDataset_MA(const int num_points,
+                                           const int dimension,
+                                           const int num_clusters,
+                                           Vector **point_table) {
     ClusteringDataset *instance = malloc(sizeof(ClusteringDataset));
-    ClusteringData *data = malloc(sizeof(ClusteringData));
-    instance->solution_size = solution_size;
-    instance->data = data;
-    data->point_table = point_table;
-    data->num_clusters = num_clusters;
+    instance->num_points = num_points;
+    instance->dimension = dimension;
+    instance->num_clusters = num_clusters;
+    instance->point_table = point_table;
     return instance;
 }
 
-void FreeClusteringDataset(ClusteringDataset *dataset) {
-    free(dataset->data);
-    free(dataset);
-}
-
-ClusteringProblem *NewClusteringProblem_MA() {
-    ClusteringProblem *instance = malloc(sizeof(ClusteringProblem));
-    instance->GenerateNeighbors_RP = ClusteringGenerateNeighbors_RP;
-    instance->CountProfit = ClusteringObjectiveFunction;
-    instance->CountNumNeighbors = ClusteringCountNumNeighbors;
-    instance->Clone_RP = Default_Clone_RP;
-    instance->IsEqual = Default_IsEqual;
-    return instance;
-}
-
-void ClusteringRandomSolution_RP(const DiscreteProblemDataset *dataset, DiscreteProblemSolution *solution) {
-    int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
-    for (int c = 0; c < solution->size; c++) {
-        solution->solution_ar[c] = rand() % num_clusters;
-    }
-    solution->profit = ClusteringObjectiveFunction((DiscreteProblemDataset *)dataset, solution);
-}
-
-void ClusteringGenerateNeighbors_RP(int index,
-                                    const DiscreteProblemDataset *dataset,
-                                    const DiscreteProblemSolution *current_solution,
-                                    DiscreteProblemSolution *neighbor_solution) {
-    Default_Clone_RP(current_solution, neighbor_solution);
-    int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
-    int point = index / num_clusters;
-    int cluster = index % (num_clusters - 1);
-    if (neighbor_solution->solution_ar[point] <= cluster) {
-        cluster++;
-    }
-    neighbor_solution->solution_ar[point] = cluster;
-    neighbor_solution->profit = ClusteringObjectiveFunction((DiscreteProblemDataset *)dataset, neighbor_solution);
-}
-
-int ClusteringCountNumNeighbors(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
-    int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
-    return solution->size * (num_clusters - 1);
-}
-
-GeneticClustering *NewGeneticClustering_MA() {
-    GeneticClustering *instance = malloc(sizeof(GeneticClustering));
-    instance->CountProfit = ClusteringObjectiveFunction;
-    instance->Clone_RP = Default_Clone_RP;
-    instance->IsEqual = Default_IsEqual;
-    instance->Crossover_DA = UniformCrossover_DA;
-    instance->Mutation_DA = ClusteringMutation_DA;
-    return instance;
-}
-
-void ClusteringMutation_DA(const DiscreteProblemDataset *dataset,
-                           DiscreteProblemSolution *solution,
-                           const double mutation_rate) {
-    if ((double)rand() / RAND_MAX < mutation_rate) {
-        int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
-        int point = rand() % solution->size;
-        int cluster = rand() % (num_clusters - 1);
-        if (solution->solution_ar[point] <= cluster) {
-            cluster++;
-        }
-        solution->solution_ar[point] = cluster;
-    }
-}
-
-void CountMeans_RP(const ClusteringDataset *dataset, const DiscreteProblemSolution *solution, Vector **means) {
-    int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
-    int dimension = dataset->data->point_table[0]->dimension;
-    int num_points[num_clusters];
-    for (int c = 0; c < num_clusters; c++) {
-        num_points[c] = 0;
-    }
-    for (int c_cl = 0; c_cl < num_clusters; c_cl++) {
-        for (int c_dim = 0; c_dim < dimension; c_dim++) {
-            means[c_cl]->components_ar[c_dim] = 0.0;
-        }
-    }
+double SumOfSquareError_DA(const void *dataset, Solution *solution, Vector *means) {
+    ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
+    double sse = 0.0;
     for (int c_pt = 0; c_pt < solution->size; c_pt++) {
-        for (int c_dim = 0; c_dim < dimension; c_dim++) {
-            means[solution->solution_ar[c_pt]]->components_ar[c_dim] +=
-                dataset->data->point_table[c_pt]->components_ar[c_dim];
+        for (int c_dim = 0; c_dim < casted_dataset->dimension; c_dim++) {
+            double error = casted_dataset->point_table[c_pt]->components_ar[c_dim] -
+                           means->components_ar[solution->solution_ar[c_pt] * casted_dataset->dimension + c_dim];
+            sse += error * error;
+        }
+    }
+    solution->profit = 0.0 - sse;
+    means->value = 0.0 - sse;
+    return 0.0 - sse;
+}
+
+double SumOfSquareErrorDiscrete_DA(const void *dataset, Solution *solution) {
+    ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
+    Vector *means = NewEmptyVector_MA(casted_dataset->num_clusters * casted_dataset->dimension);  // MA
+    CountMeans_RP(casted_dataset, solution, means);
+    double sse = SumOfSquareError_DA(dataset, solution, means);
+    FreeVector(means);  // RE
+    return sse;
+}
+
+double SumOfSquareErrorContinuous_DA(const void *dataset, Vector *means) {
+    ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
+    Solution *solution = NewEmptySolution_MA(casted_dataset->num_points);  // MA
+    CountClusterID_RP(casted_dataset, means, solution);
+    double sse = SumOfSquareError_DA(dataset, solution, means);
+    FreeSolution(solution);  // RE
+    return sse;
+}
+
+Vector *KMeans_MA(const ClusteringDataset *dataset, const Vector *initial_means) {
+    Solution *next_solution = NewEmptySolution_MA(dataset->num_points);  // MA_NS
+    Solution *solution = NewEmptySolution_MA(dataset->num_points);       // MA_SO
+    Vector *next_means = NewEmptyVector_MA(initial_means->dimension);    // MA_NM
+    Vector *means = NewEmptyVector_MA(initial_means->dimension);
+    CloneVector_RP(initial_means, next_means);
+    CountClusterID_RP(dataset, next_means, next_solution);
+    printf("[k-means] initialize \n");
+
+    while (!ClusteringIsEqual(dataset, solution, next_solution)) {
+        CloneVector_RP(next_means, means);
+        CloneSolution_RP(next_solution, solution);
+        CountMeans_RP(dataset, next_solution, next_means);
+        CountClusterID_RP(dataset, next_means, next_solution);
+    }
+    SumOfSquareErrorContinuous_DA(dataset, means);
+    FreeSolution(next_solution);  // RE_NS
+    FreeSolution(solution);       // RE_SO
+    FreeVector(next_means);       // RE_NM
+    return means;
+}
+
+void CountMeans_RP(const ClusteringDataset *dataset, const Solution *solution, Vector *means) {
+    int num_points[dataset->num_clusters];
+    for (int c_cl = 0; c_cl < dataset->num_clusters; c_cl++) {
+        num_points[c_cl] = 0;
+    }
+    for (int c_cl = 0; c_cl < dataset->num_clusters; c_cl++) {
+        for (int c_dim = 0; c_dim < dataset->dimension; c_dim++) {
+            means->components_ar[c_cl * dataset->dimension + c_dim] = 0.0;
+        }
+    }
+    for (int c_pt = 0; c_pt < dataset->num_points; c_pt++) {
+        for (int c_dim = 0; c_dim < dataset->dimension; c_dim++) {
+            means->components_ar[solution->solution_ar[c_pt] * dataset->dimension + c_dim] +=
+                dataset->point_table[c_pt]->components_ar[c_dim];
         }
         num_points[solution->solution_ar[c_pt]]++;
     }
-    for (int c_cl = 0; c_cl < num_clusters; c_cl++) {
-        for (int c_dim = 0; c_dim < dimension; c_dim++) {
-            means[c_cl]->components_ar[c_dim] /= num_points[c_cl];
+    for (int c_cl = 0; c_cl < dataset->num_clusters; c_cl++) {
+        for (int c_dim = 0; c_dim < dataset->dimension; c_dim++) {
+            means->components_ar[c_cl * dataset->dimension + c_dim] /= num_points[c_cl];
         }
     }
 }
 
-void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, DiscreteProblemSolution *solution) {
-    int num_clusters = ((ClusteringDataset *)dataset)->data->num_clusters;
-    int dimension = dataset->data->point_table[0]->dimension;
-    for (int c_pt = 0; c_pt < solution->size; c_pt++) {
+void CountClusterID_RP(const ClusteringDataset *dataset, const Vector *means, Solution *solution) {
+    for (int c_pt = 0; c_pt < dataset->num_points; c_pt++) {
         int nearest_mean = 0;
         double min_distance = __DBL_MAX__;
-        for (int c_m = 0; c_m < num_clusters; c_m++) {
+        for (int c_cl = 0; c_cl < dataset->num_clusters; c_cl++) {
             double distance = 0.0;
-            for (int c_dim = 0; c_dim < dimension; c_dim++) {
-                double error = dataset->data->point_table[c_pt]->components_ar[c_dim] -
-                               means[c_m]->components_ar[c_dim];
+            for (int c_dim = 0; c_dim < dataset->dimension; c_dim++) {
+                double error = dataset->point_table[c_pt]->components_ar[c_dim] -
+                               means->components_ar[c_cl * dataset->dimension + c_dim];
 
                 distance += error * error;
             }
             if (distance < min_distance) {
-                nearest_mean = c_m;
+                nearest_mean = c_cl;
                 min_distance = distance;
             }
         }
@@ -128,96 +114,75 @@ void CountClusterID_RP(const ClusteringDataset *dataset, Vector **means, Discret
     }
 }
 
-void CountBounds_RP(const ClusteringDataset *dataset, double bounds[][2]) {
-    int dimension = dataset->data->point_table[0]->dimension;
-    for (int c_dim = 0; c_dim < dimension; c_dim++) {
-        double upper_bound = 0.0 - __DBL_MAX__;
-        double lower_bound = __DBL_MAX__;
-        for (int c_pt = 0; c_pt < dataset->solution_size; c_pt++) {
-            double value = dataset->data->point_table[c_pt]->components_ar[c_dim];
-            if (upper_bound < value) {
-                upper_bound = value;
-            }
-            if (lower_bound > value) {
-                lower_bound = value;
-            }
-        }
-        bounds[c_dim][0] = lower_bound;
-        bounds[c_dim][1] = upper_bound;
-    }
+LocalSearchProblem *NewLocalSearchClustering_MA() {
+    LocalSearchProblem *instance = malloc(sizeof(LocalSearchProblem));
+    instance->CountNumNeighbors = ClusteringCountNumNeighbors;
+    instance->GenerateNeighbors_RP = ClusteringGenerateNeighbors_RP;
+    instance->IsSolutionEqual = ClusteringIsEqual;
+    return instance;
 }
 
-Vector **KMeans_MA(const ClusteringDataset *dataset, Vector **initial_means) {
-    DiscreteProblemDataset *casted_dataset = (DiscreteProblemDataset *)dataset;
-    DiscreteProblemSolution *solution = NewEmptyDiscreteSolution_MA(casted_dataset);       // MA_SO
-    DiscreteProblemSolution *next_solution = NewEmptyDiscreteSolution_MA(casted_dataset);  // MA_NS
-    int dimension = dataset->data->point_table[0]->dimension;
-    int num_clusters = dataset->data->num_clusters;
-    Vector **means = malloc(num_clusters * sizeof(Vector *));
-    Vector **next_means = malloc(num_clusters * sizeof(Vector *));  // MA_NM
-    for (int c = 0; c < num_clusters; c++) {
-        means[c] = NewEmptyVector_MA(dimension);
-        next_means[c] = NewEmptyVector_MA(dimension);
-        CloneVector_RP(initial_means[c], next_means[c]);
+void ClusteringRandomSolution_RP(const ClusteringDataset *dataset, Solution *solution) {
+    for (int c_pt = 0; c_pt < dataset->num_points; c_pt++) {
+        solution->solution_ar[c_pt] = rand() % dataset->num_clusters;
     }
-    CountClusterID_RP(dataset, next_means, next_solution);
-    while (!Default_IsEqual(casted_dataset, solution, next_solution)) {
-        for (int c = 0; c < num_clusters; c++) {
-            CloneVector_RP(next_means[c], means[c]);
-        }
-        Default_Clone_RP(next_solution, solution);
-        CountMeans_RP(dataset, next_solution, next_means);
-        CountClusterID_RP(dataset, next_means, next_solution);
-    }
-    for (int c = 0; c < num_clusters; c++) {
-        CloneVector_RP(next_means[c], means[c]);
-        FreeVector(next_means[c]);
-    }
-    free(next_means);                     // RE_NM
-    FreeDiscreteSolution(solution);       // RE_SO
-    FreeDiscreteSolution(next_solution);  // RE_NS
-    return means;
+    SumOfSquareErrorDiscrete_DA(dataset, solution);
 }
 
-double SumOfSquareError(const DiscreteProblemDataset *dataset, const DiscreteProblemSolution *solution) {
+int ClusteringCountNumNeighbors(const void *dataset, const Solution *solution) {
     ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
-    int num_clusters = casted_dataset->data->num_clusters;
-    int dimension = casted_dataset->data->point_table[0]->dimension;
-    Vector *means[num_clusters];
-    for (int c = 0; c < num_clusters; c++) {
-        means[c] = NewEmptyVector_MA(dimension);
-    }
-    CountMeans_RP(casted_dataset, solution, means);
-
-    double sse = 0.0;
-    for (int c_pt = 0; c_pt < solution->size; c_pt++) {
-        for (int c_dim = 0; c_dim < dimension; c_dim++) {
-            double error = casted_dataset->data->point_table[c_pt]->components_ar[c_dim] -
-                           means[solution->solution_ar[c_pt]]->components_ar[c_dim];
-            sse += error * error;
-        }
-    }
-
-    for (int c = 0; c < num_clusters; c++) {
-        FreeVector(means[c]);
-    }
-    return 0.0 - sse;
+    return (casted_dataset->num_points) * (casted_dataset->num_clusters - 1);
 }
 
-/*
-double SumOfSquareError(const DiscreteProblemDataset *dataset, Vector **means) {
+void ClusteringGenerateNeighbors_RP(int index,
+                                    const void *dataset,
+                                    const Solution *current_solution,
+                                    Solution *neighbor_solution) {
     ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
-    int num_clusters = casted_dataset->data->num_clusters;
-    int dimension = casted_dataset->data->point_table[0]->dimension;
+    CloneSolution_RP(current_solution, neighbor_solution);
+    int point = index / (casted_dataset->num_clusters - 1);
+    int cluster = index % (casted_dataset->num_clusters - 1);
+    if (neighbor_solution->solution_ar[point] <= cluster) {
+        cluster++;
+    }
+    neighbor_solution->solution_ar[point] = cluster;
+    SumOfSquareErrorDiscrete_DA(dataset, neighbor_solution);
+}
 
-    double sse = 0.0;
-    for (int c_pt = 0; c_pt < solution->size; c_pt++) {
-        for (int c_dim = 0; c_dim < dimension; c_dim++) {
-            double error = casted_dataset->data->point_table[c_pt]->components_ar[c_dim] -
-                           means[solution->solution_ar[c_pt]]->components_ar[c_dim];
-            sse += error * error;
+bool ClusteringIsEqual(const void *dataset, const Solution *solution1, const Solution *solution2) {
+    ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
+    int mapping[casted_dataset->num_clusters];
+    for (int c_cl = 0; c_cl < casted_dataset->num_clusters; c_cl++) {
+        mapping[c_cl] = -1;
+    }
+    for (int c_pt = 0; c_pt < casted_dataset->num_points; c_pt++) {
+        if (mapping[solution1->solution_ar[c_pt]] == -1) {
+            for (int c_cl = 0; c_cl < casted_dataset->num_clusters; c_cl++) {
+                if (mapping[c_cl] == solution2->solution_ar[c_pt]) {
+                    return false;
+                }
+            }
+            mapping[solution1->solution_ar[c_pt]] = solution2->solution_ar[c_pt];
+            continue;
+        }
+        if (mapping[solution1->solution_ar[c_pt]] != solution2->solution_ar[c_pt]) {
+            return false;
         }
     }
-    return 0.0 - sse;
+    return true;
 }
-*/
+
+GeneticProblem *NewGeneticClustering_MA() {
+    GeneticProblem *instance = malloc(sizeof(GeneticProblem));
+    instance->Crossover_DA = UniformCrossover_DA;
+    instance->Mutation_DA = ClusteringMutation_DA;
+    instance->Evaluation_DA = SumOfSquareErrorDiscrete_DA;
+    return instance;
+}
+
+void ClusteringMutation_DA(const void *dataset, Solution *solution, const double mutation_rate) {
+    if ((double)rand() / RAND_MAX < mutation_rate) {
+        int num_neighbors = rand() % ClusteringCountNumNeighbors(dataset, solution);
+        ClusteringGenerateNeighbors_RP(num_neighbors, dataset, solution, solution);
+    }
+}

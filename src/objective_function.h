@@ -4,8 +4,8 @@
 #ifndef OBJECT_FUNCTION_H_
 #define OBJECT_FUNCTION_H_
 
-#include "optimization_problem.h"
+#include "problem_solution.h"
 
-double Ackley(const Vector* vector);
+double Ackley(const void* dataset, const Vector* vector);
 
 #endif  // OBJECT_FUNCTION_H_

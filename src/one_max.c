@@ -1,59 +1,57 @@
 #include "one_max.h"
 
-#include <stdbool.h>
 #include <stdlib.h>
 
-OneMaxProblemDataset* NewOneMaxProblemDataset_MA(int solution_size) {
-    OneMaxProblemDataset* instance = malloc(sizeof(OneMaxProblemDataset));
-    instance->solution_size = solution_size;
-    instance->data = NULL;
-    return instance;
-}
-
-OneMaxProblem* NewOneMaxProblem_MA() {
-    OneMaxProblem* instance = malloc(sizeof(OneMaxProblem));
-    instance->InitialSolution_RP = OneMaxRandomSolution_RP;
-    instance->GenerateNeighbors_RP = OneMaxGenerateNeighbors_RP;
-    instance->CountProfit = OneMaxCountProfit;
-    instance->CountNumNeighbors = Default_CountNumNeighbors;
-    instance->Clone_RP = Default_Clone_RP;
-    instance->IsEqual = Default_IsEqual;
-    return instance;
-}
-
-void OneMaxRandomSolution_RP(const DiscreteProblemDataset* dataset, DiscreteProblemSolution* solution) {
-    for (int c = 0; c < solution->size; c++) {
-        if (rand() % 2 == 1) {
-            solution->solution_ar[c] = '1';
-        } else {
-            solution->solution_ar[c] = '0';
-        }
-    }
-    solution->profit = OneMaxCountProfit(dataset, solution);
-}
-
-void OneMaxGenerateNeighbors_RP(int index,
-                                const DiscreteProblemDataset* dataset,
-                                const DiscreteProblemSolution* current_solution,
-                                DiscreteProblemSolution* neighbor_solution) {
-    if (index >= current_solution->size) {
-        return;
-    }
-    Default_Clone_RP(current_solution, neighbor_solution);
-    if (neighbor_solution->solution_ar[index] == '1') {
-        neighbor_solution->solution_ar[index] = '0';
-    } else {
-        neighbor_solution->solution_ar[index] = '1';
-    }
-    neighbor_solution->profit = OneMaxCountProfit(dataset, neighbor_solution);
-}
-
-double OneMaxCountProfit(const DiscreteProblemDataset* dataset, const DiscreteProblemSolution* solution) {
+double CountOnes_DA(const void* dataset, Solution* solution) {
     int profit = 0;
     for (int c = 0; c < solution->size; c++) {
-        if (solution->solution_ar[c] == '1') {
+        if (solution->solution_ar[c] == 1) {
             profit++;
         }
     }
-    return (double)profit;
+    solution->profit = (double)profit;
+    return solution->profit;
+}
+
+LocalSearchProblem* NewLocalSearchOneMax_MA() {
+    LocalSearchProblem* instance = malloc(sizeof(LocalSearchProblem));
+    instance->CountNumNeighbors = CountNumNeighbors;
+    instance->GenerateNeighbors_RP = OneMaxGenerateNeighbors_RP;
+    instance->IsSolutionEqual = IsSolutionEqual;
+    return instance;
+}
+
+void OneMaxRandomSolution_RP(Solution* solution) {
+    for (int c = 0; c < solution->size; c++) {
+        solution->solution_ar[c] = rand() % 2;
+    }
+    CountOnes_DA(NULL, solution);
+}
+
+void OneMaxGenerateNeighbors_RP(int index,
+                                const void* dataset,
+                                const Solution* current_solution,
+                                Solution* neighbor_solution) {
+    if (neighbor_solution->solution_ar[index] == 0) {
+        neighbor_solution->solution_ar[index] = 1;
+        neighbor_solution->profit++;
+    } else {
+        neighbor_solution->solution_ar[index] = 0;
+        neighbor_solution->profit--;
+    }
+}
+
+GeneticProblem* NewGeneticOneMax_MA() {
+    GeneticProblem* instance = malloc(sizeof(GeneticProblem));
+    instance->Crossover_DA = UniformCrossover_DA;
+    instance->Mutation_DA = OneMaxMutation_DA;
+    instance->Evaluation_DA = CountOnes_DA;
+    return instance;
+}
+
+void OneMaxMutation_DA(const void* dataset, Solution* solution, const double mutation_rate) {
+    if ((double)rand() / RAND_MAX < mutation_rate) {
+        int num_neighbors = rand() % CountNumNeighbors(dataset, solution);
+        OneMaxGenerateNeighbors_RP(num_neighbors, dataset, solution, solution);
+    }
 }

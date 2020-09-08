@@ -1,8 +1,8 @@
 /**
- * Hill Climbing framework
+ * Tabu Search framework
  */
-#ifndef HILL_CLIMBING_H_
-#define HILL_CLIMBING_H_
+#ifndef TABU_SEARCH_H_
+#define TABU_SEARCH_H_
 
 #include <stdio.h>
 
@@ -10,18 +10,20 @@
 
 // hill climbing algorithm framework
 // returns best solution
-DiscreteProblemSolution* HillClimbing_MA(
+Solution* TabuSearch_RP(
     // instance of the problem
-    const DiscreteOptimizationProblem* problem,
+    const DiscreteProblem* problem,
     // instance of problem dataset
     const DiscreteProblemDataset* dataset,
     // the initial solution
-    const DiscreteProblemSolution* initial_solution,
+    const Solution* initial_solution,
     // constraint of max iterations
     const int max_iterations,
-    // file pointer for logging
+    // size of tabu list
+    const int tabu_list_size,
+    // file pointer of logging
     // must had already opened a file for writing
     // pass NULL to skip logging
     FILE* loggings);
 
-#endif  // HILL_CLIMBING_H_
+#endif  // TABU_SEARCH_H_
