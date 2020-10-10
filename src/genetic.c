@@ -18,7 +18,7 @@ Solution* Genetic_MA(const GeneticProblem* problem,
                      const int population_size,
                      const double crossover_rate,
                      const double mutation_rate,
-                     const int max_generations,
+                     const int max_evaluations,
                      int (*Selection)(const double* weights, const int num_candidates),
                      FILE* loggings) {
     // initialize
@@ -33,7 +33,7 @@ Solution* Genetic_MA(const GeneticProblem* problem,
     }
     printf("[ga] initialize \n");
 
-    for (int c_gen = 1; c_gen < max_generations; c_gen++) {
+    for (int c_gen = 1; c_gen * population_size < max_evaluations; c_gen++) {
         // crossover
         for (int c_pop = 0; c_pop < population_size; c_pop += 2) {
             if ((double)rand() / RAND_MAX < crossover_rate) {

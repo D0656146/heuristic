@@ -1,6 +1,7 @@
 #include "one_max.h"
 
 #include <stdlib.h>
+#include <time.h>
 
 double CountOnes_DA(const void* dataset, Solution* solution) {
     int profit = 0;
@@ -32,6 +33,7 @@ void OneMaxGenerateNeighbors_RP(int index,
                                 const void* dataset,
                                 const Solution* current_solution,
                                 Solution* neighbor_solution) {
+    CloneSolution_RP(current_solution, neighbor_solution);
     if (neighbor_solution->solution_ar[index] == 0) {
         neighbor_solution->solution_ar[index] = 1;
         neighbor_solution->profit++;
@@ -39,6 +41,7 @@ void OneMaxGenerateNeighbors_RP(int index,
         neighbor_solution->solution_ar[index] = 0;
         neighbor_solution->profit--;
     }
+    CountOnes_DA(dataset, neighbor_solution);
 }
 
 GeneticProblem* NewGeneticOneMax_MA() {

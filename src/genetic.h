@@ -36,8 +36,8 @@ Solution* Genetic_MA(
     const double crossover_rate,
     // mutation rate
     const double mutation_rate,
-    // constraint of max generations
-    const int max_generations,
+    // constraint of max evaluations
+    const int max_evaluations,
     // function to select population of next generation
     int (*Selection)(const double* weights, const int num_candidates),
     // file pointer of logging

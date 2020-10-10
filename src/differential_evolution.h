@@ -19,12 +19,13 @@ Vector* DifferentialEvolution_MA(
     Vector** initial_population,
     // population size
     const int population_size,
-    // constraint of max generations
-    const int max_generations,
+    // constraint of max evaluations
+    const int max_evaluations,
     // crossover rate
     const double crossover_rate,
     // mutation function
-    void (*Mutation_RP)(Vector** population,
+    void (*Mutation_RP)(const void* dataset,
+                        Vector** population,
                         const int population_size,
                         const Vector* origin,
                         Vector* mutant),
@@ -35,6 +36,7 @@ Vector* DifferentialEvolution_MA(
 
 // some methods for mutation
 void Mutation1(
+    const void* dataset,
     Vector** population,
     const int population_size,
     const Vector* origin,

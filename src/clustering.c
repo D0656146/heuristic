@@ -38,8 +38,20 @@ double SumOfSquareErrorDiscrete_DA(const void *dataset, Solution *solution) {
     return sse;
 }
 
+int CompareDouble(const void *double1, const void *double2) {
+    if (*((double *)double1) < *((double *)double2)) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+
 double SumOfSquareErrorContinuous_DA(const void *dataset, Vector *means) {
     ClusteringDataset *casted_dataset = (ClusteringDataset *)dataset;
+    // qsort(means->components_ar,
+    //       casted_dataset->num_clusters,
+    //       sizeof(double) * casted_dataset->dimension,
+    //       CompareDouble);
     Solution *solution = NewEmptySolution_MA(casted_dataset->num_points);  // MA
     CountClusterID_RP(casted_dataset, means, solution);
     double sse = SumOfSquareError_DA(dataset, solution, means);
@@ -184,5 +196,66 @@ void ClusteringMutation_DA(const void *dataset, Solution *solution, const double
     if ((double)rand() / RAND_MAX < mutation_rate) {
         int num_neighbors = rand() % ClusteringCountNumNeighbors(dataset, solution);
         ClusteringGenerateNeighbors_RP(num_neighbors, dataset, solution, solution);
+    }
+}
+
+void AlignPoints(const ClusteringDataset *dataset,
+                 const Vector *standard,
+                 Vector *mean) {
+    bool is_choosed[dataset->num_clusters];
+    for (int c_cl = 0; c_cl < dataset->num_clusters; c_cl++) {
+        is_choosed[c_cl] = false;
+    }
+    double new_means[mean->dimension];
+    for (int c_cl = 0; c_cl < dataset->num_clusters; c_cl++) {
+        // compare each means with standard
+        double square_errors[dataset->num_clusters];
+        for (int c_stdcl = 0; c_stdcl < dataset->num_clusters; c_stdcl++) {
+            if (is_choosed[c_stdcl]) {
+                square_errors[c_stdcl] = __DBL_MAX__;
+                continue;
+            }
+            square_errors[c_stdcl] = 0.0;
+            for (int c_dim = 0; c_dim < dataset->dimension; c_dim++) {
+                double square_error = mean->components_ar[c_cl * dataset->dimension + c_dim] -
+                                      standard->components_ar[c_stdcl * dataset->dimension + c_dim];
+                square_error *= square_error;
+                square_errors[c_stdcl] += square_error;
+            }
+        }
+        int best_cluster = -1;
+        double best_error = __DBL_MAX__;
+        for (int c_stdcl = 0; c_stdcl < dataset->num_clusters; c_stdcl++) {
+            if (square_errors[c_stdcl] < best_error) {
+                best_error = square_errors[c_stdcl];
+                best_cluster = c_stdcl;
+            }
+        }
+        is_choosed[best_cluster] = true;
+        // record
+        for (int c_dim = 0; c_dim < dataset->dimension; c_dim++) {
+            new_means[c_cl * dataset->dimension + c_dim] = mean->components_ar[best_cluster * dataset->dimension + c_dim];
+        }
+    }
+    for (int c_dim = 0; c_dim < mean->dimension; c_dim++) {
+        mean->components_ar[c_dim] = new_means[c_dim];
+    }
+}
+
+void ClusteringMutation_RP(const void *dataset,
+                           Vector **population,
+                           const int population_size,
+                           const Vector *origin,
+                           Vector *mutant) {
+    double rate = (double)rand() / RAND_MAX;
+    Vector *vm = population[rand() % population_size];
+    Vector *v1 = population[rand() % population_size];
+    Vector *v2 = population[rand() % population_size];
+    AlignPoints((ClusteringDataset *)dataset, population[0], vm);
+    AlignPoints((ClusteringDataset *)dataset, population[0], v1);
+    AlignPoints((ClusteringDataset *)dataset, population[0], v2);
+    CloneVector_RP(vm, mutant);
+    for (int c = 0; c < mutant->dimension; c++) {
+        mutant->components_ar[c] += rate * (v1->components_ar[c] - v2->components_ar[c]);
     }
 }

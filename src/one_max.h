@@ -10,7 +10,7 @@
 #include "problem_solution.h"
 
 // evaluation function
-double CountOnes_DA(const void* dataset, Solution *solution);
+double CountOnes_DA(const void *dataset, Solution *solution);
 
 // constructor for local search
 LocalSearchProblem *NewLocalSearchOneMax_MA();

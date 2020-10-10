@@ -19,7 +19,7 @@ bool IsSolutionEqual(const void *dataset, const Solution *solution1, const Solut
 Solution *TabuSearch_MA(const LocalSearchProblem *problem,
                         const void *dataset,
                         const Solution *initial_solution,
-                        const int max_iterations,
+                        const int max_evaluations,
                         const int tabu_list_size,
                         FILE *loggings) {
     // initialize
@@ -46,9 +46,9 @@ Solution *TabuSearch_MA(const LocalSearchProblem *problem,
     }
     printf("[ts] initialize tabu list \n");
 
-    for (int c_iter = 0, evaluate_times = 0; c_iter < max_iterations; c_iter++) {
+    for (int c_iter = 0, evaluate_times = 0; evaluate_times < max_evaluations; c_iter++) {
         // reset local best
-        CloneSolution_RP(current_solution, best_candidate_solution);
+        best_candidate_solution->profit = 0.0 - __DBL_MAX__;
         // find best neighbor not in tabu list
         int num_neighbors = problem->CountNumNeighbors(dataset, current_solution);
         evaluate_times += num_neighbors;
@@ -109,7 +109,7 @@ Solution *SimulatedAnnealing_MA(const LocalSearchProblem *problem,
                                 const Solution *initial_solution,
                                 const double initial_temperature,
                                 const double min_temperature,
-                                const int max_iterations,
+                                const int max_evaluations,
                                 bool (*Determination)(const double current_profit,
                                                       const double candidate_profit,
                                                       const double temperature),
@@ -125,7 +125,7 @@ Solution *SimulatedAnnealing_MA(const LocalSearchProblem *problem,
     double current_temperature = initial_temperature;
     printf("[sa] initial temperature = %g \n", current_temperature);
 
-    for (int c_iter = 0; c_iter < max_iterations; c_iter++) {
+    for (int c_iter = 0; c_iter < max_evaluations; c_iter++) {
         // find random neighbor
         int num_neighbors = problem->CountNumNeighbors(dataset, current_solution);
         int random_index = rand() % num_neighbors;

@@ -40,7 +40,7 @@ Vector **ReadPointsFromFile_MA_RP(FILE *fptr, int *num_points) {
     return point_table;
 }
 
-void CountBounds_RP(const Vector **point_table, const int num_points, double bounds[][2]) {
+void CountBounds_RP(Vector **point_table, const int num_points, double bounds[][2]) {
     int dimension = point_table[0]->dimension;
     for (int c_dim = 0; c_dim < dimension; c_dim++) {
         double upper_bound = 0.0 - __DBL_MAX__;

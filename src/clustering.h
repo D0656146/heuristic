@@ -49,4 +49,11 @@ GeneticProblem *NewGeneticClustering_MA();
 // methods
 void ClusteringMutation_DA(const void *dataset, Solution *solution, const double mutation_rate);
 
+// method for differential evaluation
+void ClusteringMutation_RP(const void *dataset,
+                           Vector **population,
+                           const int population_size,
+                           const Vector *origin,
+                           Vector *mutant);
+
 #endif  // CLUSTERING_H_

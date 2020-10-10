@@ -41,8 +41,8 @@ Solution *TabuSearch_MA(
     const void *dataset,
     // the initial solution
     const Solution *initial_solution,
-    // constraint of max iterations
-    const int max_iterations,
+    // constraint of max evaluations
+    const int max_evaluations,
     // size of tabu list
     const int tabu_list_size,
     // file pointer of logging
@@ -62,8 +62,8 @@ Solution *SimulatedAnnealing_MA(
     const double initial_temperature,
     // the constraint of minimum temperature
     const double min_temperature,
-    // constraint of max iterations
-    const int max_iterations,
+    // constraint of max evaluations
+    const int max_evaluations,
     // function to determine if candidate solution is accepted
     // just call Metropolis most of time
     bool (*Determination)(const double current_profit,

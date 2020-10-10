@@ -64,8 +64,8 @@ Solution* AntColony_MA(
     const double local_pheromone_amount,
     // evaporation rate of pheromone per iteration
     const double evaporation_rate,
-    // constraint of max generations
-    const int max_generations,
+    // constraint of max evaluations
+    const int max_evaluations,
     // file pointer of logging
     // must had already opened a file for writing
     // pass NULL to skip logging

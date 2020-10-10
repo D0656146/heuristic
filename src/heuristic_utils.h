@@ -16,6 +16,6 @@ int Tournament(const double *weights, const int num_candidates);
 Vector **ReadPointsFromFile_MA_RP(FILE *fptr, int *num_points);
 
 // bound counting function
-void CountBounds_RP(const Vector **point_table, const int num_points, double bounds[][2]);
+void CountBounds_RP(Vector **point_table, const int num_points, double bounds[][2]);
 
 #endif  // HEURISTIC_UTILS_H_

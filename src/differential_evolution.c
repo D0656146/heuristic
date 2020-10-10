@@ -6,9 +6,10 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
                                  const void* dataset,
                                  Vector** initial_population,
                                  const int population_size,
-                                 const int max_generations,
+                                 const int max_evaluations,
                                  const double crossover_rate,
-                                 void (*Mutation_RP)(Vector** population,
+                                 void (*Mutation_RP)(const void* dataset,
+                                                     Vector** population,
                                                      const int population_size,
                                                      const Vector* origin,
                                                      Vector* mutant),
@@ -25,10 +26,10 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
     }
     printf("[de] initialize \n");
 
-    for (int c_gen = 0; c_gen < max_generations; c_gen++) {
+    for (int c_gen = 0; c_gen * population_size * 2 < max_evaluations; c_gen++) {
         // mutation
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
-            Mutation_RP(population, population_size, population[c_pop], mutants[c_pop]);
+            Mutation_RP(dataset, population, population_size, population[c_pop], mutants[c_pop]);
         }
         // crossover and determine
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
@@ -41,7 +42,9 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
             ObjectiveFunction_DA(dataset, mutants[c_pop]);
             if (population[c_pop]->value < mutants[c_pop]->value) {
                 CloneVector_RP(mutants[c_pop], population[c_pop]);
-                printf("[de] accept %d \n", c_pop);
+                // printf("[de] accept %d \n", c_pop);
+            } else {
+                // printf("[de] decline \n");
             }
         }
         // update best
@@ -52,7 +55,7 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %g\n", (c_gen + 1) * population_size, best_solution->value);
+            fprintf(loggings, "%d %g\n", (c_gen + 1) * population_size * 2, best_solution->value);
         }
     }
     for (int c_pop = 0; c_pop < population_size; c_pop++) {
@@ -63,7 +66,8 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
     return best_solution;
 }
 
-void Mutation1(Vector** population,
+void Mutation1(const void* dataset,
+               Vector** population,
                const int population_size,
                const Vector* origin,
                Vector* mutant) {

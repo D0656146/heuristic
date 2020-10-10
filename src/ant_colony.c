@@ -35,7 +35,7 @@ Solution* AntColony_MA(const AntColonyProblem* problem,
                        const double global_pheromone_amount,
                        const double local_pheromone_amount,
                        const double evaporation_rate,
-                       const int max_generations,
+                       const int max_evaluations,
                        FILE* loggings) {
     // initialize
     Solution* best_solution = NewEmptySolution_MA(solution_size);
@@ -60,7 +60,7 @@ Solution* AntColony_MA(const AntColonyProblem* problem,
     }
     printf("[aco] initialize \n");
 
-    for (int c_gen = 0; c_gen < max_generations; c_gen++) {
+    for (int c_gen = 0; c_gen * num_ants < max_evaluations; c_gen++) {
         // reset local best
         local_best_ant->solution->profit = 0.0 - __DBL_MAX__;
 

@@ -31,7 +31,7 @@ Vector* ParticleSwarm_MA(
     // population size, must be even
     const int population_size,
     // constraint of max generations
-    const int max_generations,
+    const int max_evaluations,
     // max speed of particle
     const double max_velocity,
     // inertia weight

@@ -21,7 +21,7 @@ Vector* ParticleSwarm_MA(double (*ObjectiveFunction_DA)(const void* dataset, Vec
                          const void* dataset,
                          Vector** initial_population,
                          const int population_size,
-                         const int max_generations,
+                         const int max_evaluations,
                          const double max_velocity,
                          const double inertia_weight,
                          const double accel_constant_personal,
@@ -41,7 +41,7 @@ Vector* ParticleSwarm_MA(double (*ObjectiveFunction_DA)(const void* dataset, Vec
     }
     printf("[pso] initialize \n");
 
-    for (int c_gen = 0; c_gen < max_generations; c_gen++) {
+    for (int c_gen = 0; c_gen * population_size < max_evaluations; c_gen++) {
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
             // transition and evaluation
             for (int c_dim = 0; c_dim < dimension; c_dim++) {
