@@ -2,6 +2,7 @@
 #include <time.h>
 
 #include "ant_colony.h"
+#include "black_hole.h"
 #include "clustering.h"
 #include "differential_evolution.h"
 #include "genetic.h"
@@ -16,10 +17,10 @@
 int main(void) {
     srand(time(NULL));
     FILE *loggings, *plot;
-    const int num_clusters = 15;
+    const int num_clusters = 3;
     const int population_size = 100;
 
-    FILE* fptr = fopen("s1.txt", "r");
+    FILE* fptr = fopen("iris.dat", "r");
     int num_points;
     Vector** point_table = ReadPointsFromFile_MA_RP(fptr, &num_points);
     ClusteringDataset* clustering_dataset = NewClusteringDataset_MA(num_points,
@@ -29,13 +30,13 @@ int main(void) {
 
     Solution* initial_population[population_size];
     Vector* initial_means[population_size];
-    double bounds[30][2];
+    double bounds[12][2];
     CountBounds_RP(point_table, num_points, bounds);
     for (int c_cl = 1; c_cl < num_clusters; c_cl++) {
-        bounds[c_cl * 2][0] = bounds[0][0];
-        bounds[c_cl * 2 + 1][0] = bounds[1][0];
-        bounds[c_cl * 2][1] = bounds[0][1];
-        bounds[c_cl * 2 + 1][1] = bounds[1][1];
+        for (int c_dim = 0; c_dim < point_table[0]->dimension; c_dim++) {
+            bounds[c_cl * point_table[0]->dimension + c_dim][0] = bounds[c_dim][0];
+            bounds[c_cl * point_table[0]->dimension + c_dim][1] = bounds[c_dim][1];
+        }
     }
     for (int c_sol = 0; c_sol < population_size; c_sol++) {
         initial_population[c_sol] = NewEmptySolution_MA(num_points);
@@ -98,13 +99,34 @@ int main(void) {
     PrintSolution(ga);
     fclose(loggings);*/
 
+    loggings = fopen("bh.dat", "w");
+    plot = fopen("bh_vis.dat", "w");
+    Vector* bh = BlackHole_MA(SumOfSquareErrorContinuous_DA,
+                              clustering_dataset,
+                              bounds,
+                              initial_means,
+                              20,
+                              2000,
+                              loggings);
+    PrintVector(bh);
+    for (int c_cl = 0; c_cl < 15; c_cl++) {
+        for (int c_dim = 0; c_dim < 2; c_dim++) {
+            fprintf(plot, "%f ", bh->components_ar[c_cl * 2 + c_dim]);
+        }
+        fprintf(plot, "\n");
+    }
+    fclose(plot);
+    fclose(loggings);
+
+    // return 0;
+
     loggings = fopen("pso.dat", "w");
     // plot = fopen("pso_vis.dat", "w");
     Vector* pso = ParticleSwarm_MA(SumOfSquareErrorContinuous_DA,
                                    clustering_dataset,
                                    initial_means,
-                                   100,
-                                   30000,
+                                   10,
+                                   2000,
                                    __DBL_MAX__,
                                    0.8,
                                    1.2,
@@ -125,9 +147,9 @@ int main(void) {
     Vector* de = DifferentialEvolution_MA(SumOfSquareErrorContinuous_DA,
                                           clustering_dataset,
                                           initial_means,
-                                          10,
-                                          30000,
-                                          0.1,
+                                          8,
+                                          2000,
+                                          0.2,
                                           ClusteringMutation_RP,
                                           loggings);
     PrintVector(de);
