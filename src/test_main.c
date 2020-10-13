@@ -6,6 +6,7 @@
 #include "clustering.h"
 #include "differential_evolution.h"
 #include "genetic.h"
+#include "gravitational.h"
 #include "heuristic_utils.h"
 #include "local_search.h"
 #include "objective_function.h"
@@ -13,6 +14,22 @@
 #include "particle_swarm.h"
 #include "problem_solution.h"
 #include "traveling_salesman.h"
+
+// double clustering(const void* dataset, Vector* vector) {
+//     ClusteringDataset* clustering_dataset = NewClusteringDataset_MA(num_points,
+//                                                                     point_table[0]->dimension,
+//                                                                     num_clusters,
+//                                                                     point_table);
+//     Vector* best = Gravitational_MA(SumOfSquareErrorContinuous_DA,
+//                                     clustering_dataset,
+//                                     initial_means,
+//                                     10,
+//                                     2000,
+//                                     0.2,
+//                                     0.5,
+//                                     NULL);
+//     return best->value;
+// }
 
 int main(void) {
     srand(time(NULL));
@@ -98,6 +115,30 @@ int main(void) {
                               loggings);
     PrintSolution(ga);
     fclose(loggings);*/
+
+    loggings = fopen("gsa.dat", "w");
+    // plot = fopen("gsa.dat", "w");
+
+    Vector* gsa = Gravitational_MA(SumOfSquareErrorContinuous_DA,
+                                   clustering_dataset,
+                                   initial_means,
+                                   20,
+                                   2000,
+                                   4,
+                                   12,
+                                   1,
+                                   loggings);
+    PrintVector(gsa);
+    /*for (int c_cl = 0; c_cl < 15; c_cl++) {
+        for (int c_dim = 0; c_dim < 2; c_dim++) {
+            fprintf(plot, "%f ", gsa->components_ar[c_cl * 2 + c_dim]);
+        }
+        fprintf(plot, "\n");
+    }
+    fclose(plot);*/
+    fclose(loggings);
+
+    return 0;
 
     loggings = fopen("bh.dat", "w");
     plot = fopen("bh_vis.dat", "w");
