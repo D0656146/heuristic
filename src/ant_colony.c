@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "traveling_salesman.h"
+
 Ant* NewEmptyAnt_MA(const int size) {
     Ant* instance = malloc(sizeof(Ant));
     instance->route_steps = size + 1;  // +1 for tsp
@@ -65,9 +67,9 @@ Solution* AntColony_MA(const AntColonyProblem* problem,
         local_best_ant->solution->profit = 0.0 - __DBL_MAX__;
 
         for (int c_ant = 0; c_ant < num_ants; c_ant++) {
-            printf("[aco] ant %d \n", c_ant + 1);
+            // printf("[aco] ant %d \n", c_ant + 1);
             ants[c_ant]->route_ar[0] = rand() % num_states;
-            printf("[aco] start at %d \n", ants[c_ant]->route_ar[0]);
+            // printf("[aco] start at %d \n", ants[c_ant]->route_ar[0]);
             // choose next step
             for (ants[c_ant]->route_steps = 1;; ants[c_ant]->route_steps++) {
                 double weights[num_states];
@@ -88,17 +90,35 @@ Solution* AntColony_MA(const AntColonyProblem* problem,
                 }
                 int chosen_state = candidate_states[RouletteWheels(weights, num_candidate_state)];
                 ants[c_ant]->route_ar[ants[c_ant]->route_steps] = chosen_state;
-                printf("[aco] go to %d \n", ants[c_ant]->route_ar[ants[c_ant]->route_steps]);
+                // printf("[aco] go to %d \n", ants[c_ant]->route_ar[ants[c_ant]->route_steps]);
             }
             problem->AntToSolution_DA(dataset, ants[c_ant]);
-            printf("[aco] profit = %g \n", ants[c_ant]->solution->profit);
+
+            // 2-opt
+            /*
+            for (int c1 = 0; c1 < num_states; c1++) {
+                for (int c2 = 0; c2 < c1; c2++) {
+                    if (c1 == c2) {
+                        continue;
+                    }
+                    int value = ants[c_ant]->solution->profit;
+                    TwoOpt_DA(c1, c2, ants[c_ant]->solution);
+                    if (TSPRouteLength_DA(dataset, ants[c_ant]->solution) < value) {
+                        TwoOpt_DA(c1, c2, ants[c_ant]->solution);
+                        TSPRouteLength_DA(dataset, ants[c_ant]->solution);
+                    }
+                }
+            }
+            */
+
+            // printf("[aco] profit = %g \n", ants[c_ant]->solution->profit);
             // update local best
             if (ants[c_ant]->solution->profit > local_best_ant->solution->profit) {
                 CloneAnt_RP(ants[c_ant], local_best_ant);
             }
         }
         // update global best
-        if (local_best_ant->solution->profit < global_best_ant->solution->profit) {
+        if (local_best_ant->solution->profit > global_best_ant->solution->profit) {
             CloneAnt_RP(local_best_ant, global_best_ant);
         }
         // update pheromone table
@@ -119,13 +139,13 @@ Solution* AntColony_MA(const AntColonyProblem* problem,
             pheromone_table[local_best_ant->route_ar[c_step - 1]][local_best_ant->route_ar[c_step]] += local_pheromone_amount;
         }
         // global best
-        for (int c_step = 1; c_step < local_best_ant->route_steps; c_step++) {
+        for (int c_step = 1; c_step < global_best_ant->route_steps; c_step++) {
             pheromone_table[global_best_ant->route_ar[c_step - 1]][global_best_ant->route_ar[c_step]] += global_pheromone_amount;
         }
 
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %g\n", (c_gen + 1) * num_ants, best_solution->profit);
+            fprintf(loggings, "%d %g\n", (c_gen + 1) * num_ants, global_best_ant->solution->profit);
         }
     }
     CloneSolution_RP(global_best_ant->solution, best_solution);

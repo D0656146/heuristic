@@ -12,6 +12,14 @@ void UniformCrossover_DA(const void* dataset, Solution* solution1, Solution* sol
     }
 }
 
+void SinglePointCrossover_DA(const void* dataset, Solution* solution1, Solution* solution2) {
+    for (int c = rand() % (solution1->size + 1); c < solution1->size; c++) {
+        int temp = solution1->solution_ar[c];
+        solution1->solution_ar[c] = solution2->solution_ar[c];
+        solution2->solution_ar[c] = temp;
+    }
+}
+
 Solution* Genetic_MA(const GeneticProblem* problem,
                      const void* dataset,
                      Solution** initial_population,

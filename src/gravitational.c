@@ -51,7 +51,6 @@ Vector* Gravitational_MA(double (*ObjectiveFunction_DA)(const void* dataset, Vec
         // count G
         double certain_gravity_constant = gravity_constant *
                                           exp(0.0 - decline_rate * c_gen * population_size / max_evaluations);
-        printf("G=%f\n", certain_gravity_constant);
         // calculate mass
         double sum_mass = 0.0;
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
@@ -63,7 +62,6 @@ Vector* Gravitational_MA(double (*ObjectiveFunction_DA)(const void* dataset, Vec
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
             population[c_pop]->mass /= sum_mass;
         }
-        printf("BestM=%f\n", population[0]);
         // calculate acceration, velocity
         double k0 = (double)num_best_planet * (1.0 - ((double)population_size * c_gen / max_evaluations));
         if (k0 <= 1.0) {

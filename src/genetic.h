@@ -20,6 +20,7 @@ typedef struct {
 
 // some crossover methods
 void UniformCrossover_DA(const void* dataset, Solution* solution1, Solution* solution2);
+void SinglePointCrossover_DA(const void* dataset, Solution* solution1, Solution* solution2);
 // some mutation methods
 
 // genetic algorithm framework

@@ -6,6 +6,6 @@
 
 #include "problem_solution.h"
 
-double Ackley(const void* dataset, const Vector* vector);
+double Ackley_DA(const void* dataset, Vector* vector);
 
 #endif  // OBJECT_FUNCTION_H_

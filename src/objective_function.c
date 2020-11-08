@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-double Ackley(const void* dataset, const Vector* vector) {
+double Ackley_DA(const void* dataset, Vector* vector) {
     const double a = 20.0, b = 0.2, c = 2.0 * M_PI;
     double sum = 0.0;
     for (int c_dim = 0; c_dim < vector->dimension; c_dim++) {
@@ -16,5 +16,6 @@ double Ackley(const void* dataset, const Vector* vector) {
     }
     cos_sum = 0.0 - exp(cos_sum / vector->dimension);
     double result = sum + cos_sum + a + exp(1.0);
-    return 0.0 - result;
+    vector->value = 0.0 - result;
+    return vector->value;
 }

@@ -1,3 +1,7 @@
+/**
+ * 之前寫各個分群的main
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -97,5 +101,5 @@ int main(int argc, char* argv[]) {
     }
     printf("\n");
     */
-    return 0;
+return 0;
 }

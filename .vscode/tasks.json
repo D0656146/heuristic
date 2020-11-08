@@ -8,7 +8,7 @@
             "args": [
                 "${fileDirname}\\*.c",
                 "-o",
-                "${fileDirname}\\..\\dist\\${fileBasenameNoExtension}.exe",
+                "${fileDirname}\\..\\dist\\test_main.exe",
                 "-g",
                 "-Wall",
                 "-static-libgcc",
@@ -30,7 +30,7 @@
             "label": "run",
             "type": "shell",
             "dependsOn": "build",
-            "command": "${fileDirname}\\..\\dist\\${fileBasenameNoExtension}.exe",
+            "command": "${fileDirname}\\..\\dist\\test_main.exe",
             "args": [],
             "group": {
                 "kind": "test",
