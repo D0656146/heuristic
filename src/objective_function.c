@@ -18,7 +18,7 @@ double Ackley_DA(const void* dataset, Vector* vector) {
     sum = 0.0 - a * exp(0.0 - b * sqrt(sum / vector->dimension));
     double cos_sum = 0.0;
     for (int c_dim = 0; c_dim < vector->dimension; c_dim++) {
-        cos_sum += cos(c * vector->components_ar[c_dim] - offset);
+        cos_sum += cos(c * (vector->components_ar[c_dim] - offset));
     }
     cos_sum = 0.0 - exp(cos_sum / vector->dimension);
     double result = sum + cos_sum + a + exp(1.0);
@@ -65,7 +65,7 @@ double Michaelwicz_DA(const void* dataset, Vector* vector) {
     for (int c_dim = 0; c_dim < vector->dimension; c_dim++) {
         double sqr = (vector->components_ar[c_dim] - offset) * (vector->components_ar[c_dim] - offset);
         double sin_sum = sin(sqr * (c_dim + 1) / PI);
-        sum -= sqr * pow(sin_sum, 2.0 * m);
+        sum -= sin((vector->components_ar[c_dim] - offset)) * pow(sin_sum, 2.0 * m);
     }
     vector->value = 0.0 - sum;
     return vector->value;

@@ -58,3 +58,30 @@ void CountBounds_RP(Vector **point_table, const int num_points, double bounds[][
         bounds[c_dim][1] = upper_bound;
     }
 }
+
+void ShuffleVectors_DA(Vector **vectors, int num_vectors) {
+    int dimension = vectors[0]->dimension;
+    Vector *temp = NewEmptyVector_MA(dimension);
+    for (int c = 0; c < num_vectors; c++) {
+        int target = rand() % num_vectors;
+        CloneVector_RP(temp, vectors[c]);
+        CloneVector_RP(vectors[c], vectors[target]);
+        CloneVector_RP(vectors[target], temp);
+    }
+}
+
+int CompareVectors(const void *vector1, const void *vector2) {
+    Vector* a = *(Vector**)vector1;
+    Vector* b = *(Vector**)vector2;
+    if (a->value > b->value) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
+void AddVectors_RP(Vector *augend, const Vector *addend) {
+    for (int c = 0; c < augend->dimension; c++) {
+        augend->components_ar[c] += addend->components_ar[c];
+    }
+}
