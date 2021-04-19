@@ -9,6 +9,7 @@
 				"${workspaceFolder}/src/*.c",
 				"-o",
 				"${workspaceFolder}/bin/heuristic",
+				"-lm",
 				"-g",
 				"-Wall",
 				"-static-libgcc",

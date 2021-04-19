@@ -1,5 +1,4 @@
 #include "objective_function.h"
-#define PI (acos(-1))
 
 #include <math.h>
 
@@ -59,7 +58,7 @@ double Rosenbrock_DA(const void* dataset, Vector* vector) {
     vector->value = 0.0 - sum;
     return vector->value;
 }
-double Michaelwicz_DA(const void* dataset, Vector* vector) {
+double Michalewicz_DA(const void* dataset, Vector* vector) {
     const double m = 10.0;
     double sum = 0.0;
     for (int c_dim = 0; c_dim < vector->dimension; c_dim++) {

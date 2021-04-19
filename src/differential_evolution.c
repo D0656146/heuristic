@@ -23,10 +23,11 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
         mutants[c_pop] = NewEmptyVector_MA(dimension);
         population[c_pop] = NewEmptyVector_MA(dimension);
         CloneVector_RP(initial_population[c_pop], population[c_pop]);
+        ObjectiveFunction_DA(dataset, population[c_pop]);
     }
     printf("[de] initialize \n");
 
-    for (int c_gen = 0; c_gen * population_size * 2 < max_evaluations; c_gen++) {
+    for (int c_gen = 0; c_gen * population_size < max_evaluations; c_gen++) {
         // mutation
         for (int c_pop = 0; c_pop < population_size; c_pop++) {
             Mutation_RP(dataset, population, population_size, population[c_pop], mutants[c_pop]);
@@ -38,7 +39,6 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
                     mutants[c_pop]->components_ar[c_dim] = population[c_pop]->components_ar[c_dim];
                 }
             }
-            ObjectiveFunction_DA(dataset, population[c_pop]);
             ObjectiveFunction_DA(dataset, mutants[c_pop]);
             if (population[c_pop]->value < mutants[c_pop]->value) {
                 CloneVector_RP(mutants[c_pop], population[c_pop]);
@@ -55,11 +55,10 @@ Vector* DifferentialEvolution_MA(double (*ObjectiveFunction_DA)(const void* data
         }
         // logging
         if (loggings) {
-            fprintf(loggings, "%d %g\n", (c_gen + 1) * population_size * 2, best_solution->value);
+            fprintf(loggings, "%d %g\n", (c_gen + 1) * population_size, best_solution->value);
         }
     }
     for (int c_pop = 0; c_pop < population_size; c_pop++) {
-        PrintVector(population[c_pop]);
         FreeVector(population[c_pop]);  // RE PO
         FreeVector(mutants[c_pop]);     // RE_MU
     }

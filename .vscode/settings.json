@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "cmath": "c",
+        "objective_function.h": "c",
+        "particle_swarm.h": "c"
+    }
+}

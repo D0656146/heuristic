@@ -1,3 +1,7 @@
+dist
+bin
+data-plot
+
 # Prerequisites
 *.d
 
