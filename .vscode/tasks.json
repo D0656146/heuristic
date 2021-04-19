@@ -1,47 +1,29 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "gcc",
-            "args": [
-                "${fileDirname}\\*.c",
-                "-o",
-                "${fileDirname}\\..\\dist\\test_main.exe",
-                "-g",
-                "-Wall",
-                "-static-libgcc",
-                "-std=c11",
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": "$gcc"
-        },
-        {
-            "label": "run",
-            "type": "shell",
-            "dependsOn": "build",
-            "command": "${fileDirname}\\..\\dist\\test_main.exe",
-            "args": [],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "shared"
-            }
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "build",
+			"command": "gcc",
+			"args": [
+				"${workspaceFolder}/src/*.c",
+				"-o",
+				"${workspaceFolder}/bin/heuristic",
+				"-g",
+				"-Wall",
+				"-static-libgcc",
+				"-std=c11",
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+		}
+	]
 }
